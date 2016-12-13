@@ -2,6 +2,10 @@
 
 Stateless SAS program runner via web interface
 
+### Install
+
+`pip install -r requirements.txt`
+
 ### How to run
 
 `python main.py [web endpoint url] [sas program path] [username] [password]`
