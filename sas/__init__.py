@@ -31,7 +31,7 @@ class Sas:
         return not(needToLogin(req.text))
 
     def call(self, program):
-        params = {'_program': getSettings()['program']}
+        params = {'_program': program}
         req = self.session.post(self._execUrl, params, verify=False)
 
         if needToLogin(req.text):
