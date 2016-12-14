@@ -3,19 +3,32 @@ import json
 
 if len(sys.argv) < 5:
     try:
-        settings = json.load(open('settings.json'))
+        data = json.load(open('settings.json'))
     except IOError:
-        settings = None
-        sys.stderr.write('Please read documentation and add valid settings.')
+        data = None
+        sys.stderr.write('Please read documentation and add valid data.')
         print('') #for new row
         sys.exit(1)
 else:
-    settings = {
+    data = {
         'execUrl' : sys.argv[1],
         'program' : sys.argv[2],
         'username': sys.argv[3],
         'password': sys.argv[4]
     }
 
-def getSettings():
-    return settings
+def _validateKey(key):
+    if not(key in ['execUrl', 'program', 'username', 'password']):
+        raise KeyError('Wrong settings key')
+
+
+def getAll():
+    return data
+
+def get(key):
+    _validateKey(key)
+    return data[key]
+
+def set(key, value):
+    _validateKey(key)
+    data[key] = value

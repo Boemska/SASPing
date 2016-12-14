@@ -3,42 +3,37 @@ import urllib
 import urllib2
 import ssl
 import requests
-from .settings import getSettings
-from .functions import needToLogin, getLoginUrl, getHostUrl, getHiddenParams
 
-unsecureContext = ssl._create_unverified_context()
+# local imports
+import settings
+import functions
 
-class Sas:
-    _execUrl = None
 
-    def __init__(self, execUrl):
-        self.session = requests.Session()
-        self._execUrl = execUrl
+_session = requests.Session()
 
-    def _login(self, loginUrl, hiddenParams):
-        settings = getSettings();
-        params = {
-            '_service': 'default',
-            'ux': settings['username'],
-            'px': settings['password'],
-            # for SAS 9.4,
-            'username': settings['username'],
-            'password': settings['password']
-        }
-        params.update(hiddenParams)
+def _login(loginUrl, hiddenParams):
+    params = {
+        '_service': 'default',
+        'ux': settings.get('username'),
+        'px': settings.get('password'),
+        # for SAS 9.4,
+        'username': settings.get('username'),
+        'password': settings.get('password')
+    }
+    params.update(hiddenParams)
 
-        req = self.session.post(getHostUrl() + loginUrl, params, verify=False)
-        return not(needToLogin(req.text))
+    req = _session.post(functions.getHostUrl() + loginUrl, params, verify=False)
+    return not(functions.needToLogin(req.text))
 
-    def call(self, program):
-        params = {'_program': program}
-        req = self.session.post(self._execUrl, params, verify=False)
+def call():
+    params = {'_program': settings.get('program')}
+    req = _session.post(settings.get('execUrl'), params, verify=False)
 
-        if needToLogin(req.text):
-            loginUrl = getLoginUrl(req.text)
-            hiddenParams = getHiddenParams(req.text)
-            if self._login(loginUrl, hiddenParams):
-                print('Login successful')
-                self.call(program)
-        else:
-            print(req.text)
+    if functions.needToLogin(req.text):
+        loginUrl = functions.getLoginUrl(req.text)
+        hiddenParams = functions.getHiddenParams(req.text)
+        if _login(loginUrl, hiddenParams):
+            print('Login successful')
+            call()
+    else:
+        print(req.text)

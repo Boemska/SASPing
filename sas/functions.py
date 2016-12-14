@@ -1,11 +1,13 @@
 import re
 from urlparse import urlparse
-from .settings import getSettings
 
-formPatt = '<form.+action="(.*Logon[^"]*).*>'
+# local imports
+import settings
+
+_formPatt = '<form.+action="(.*Logon[^"]*).*>'
 
 def needToLogin(responseHtml):
-    matches = re.search(formPatt, responseHtml)
+    matches = re.search(_formPatt, responseHtml)
     if matches:
         return True
     else:
@@ -13,11 +15,11 @@ def needToLogin(responseHtml):
         return False
 
 def getLoginUrl(responseHtml):
-    matches = re.search(formPatt, responseHtml)
+    matches = re.search(_formPatt, responseHtml)
     return re.sub('\?.*', '', matches.group(1))
 
 def getHostUrl():
-    result = urlparse(getSettings()['execUrl'])
+    result = urlparse(settings.get('execUrl'))
     return result.scheme + '://' + result.netloc
 
 def getHiddenParams(responseHtml):
