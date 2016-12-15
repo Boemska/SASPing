@@ -1,37 +1,41 @@
 # from .functions import login
 import ssl
 import requests
+import json
 
 # local imports
-import settings
+from settings import Settings
 import functions
-
 
 _session = requests.Session()
 
-def _login(loginUrl, hiddenParams):
+def run(settingsPath):
+    testConfigObjects = json.load(open(settingsPath))
+    for testConfig in testConfigObjects:
+        call(Settings(testConfig))
+
+def _login(loginUrl, hiddenParams, settings):
     params = {
         '_service': 'default',
-        'ux': settings.get('username'),
-        'px': settings.get('password'),
+        'ux': settings.get('loginParams.username'),
+        'px': settings.get('loginParams.password'),
         # for SAS 9.4,
-        'username': settings.get('username'),
-        'password': settings.get('password')
+        'username': settings.get('loginParams.username'),
+        'password': settings.get('loginParams.password')
     }
     params.update(hiddenParams)
 
-    req = _session.post(functions.getHostUrl() + loginUrl, params, verify=False)
+    req = _session.post(functions.getHostUrl(settings.get('execUrl')) + loginUrl, params, verify=False)
     return not(functions.needToLogin(req.text))
 
-def call():
-    params = {'_program': settings.get('program')}
-    req = _session.post(settings.get('execUrl'), params, verify=False)
+def call(settings):
+    req = _session.post(settings.get('execUrl'), settings.get('execParams'), verify=False)
 
     if functions.needToLogin(req.text):
         loginUrl = functions.getLoginUrl(req.text)
         hiddenParams = functions.getHiddenParams(req.text)
-        if _login(loginUrl, hiddenParams):
+        if _login(loginUrl, hiddenParams, settings):
             print('Login successful')
-            call()
+            call(settings)
     else:
         print(req.text)

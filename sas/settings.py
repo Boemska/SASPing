@@ -1,34 +1,49 @@
-import sys
-import json
+import operator
 
-if len(sys.argv) < 5:
-    try:
-        data = json.load(open('settings.json'))
-    except IOError:
-        data = None
-        sys.stderr.write('Please read documentation and add valid data.')
-        print('') #for new row
-        sys.exit(1)
-else:
-    data = {
-        'execUrl' : sys.argv[1],
-        'program' : sys.argv[2],
-        'username': sys.argv[3],
-        'password': sys.argv[4]
-    }
+class Settings:
+    _keys = [
+        # key, required
+        ('id', True),
+        ('type', True),
+        ('execUrl', True),
+        ('loginUrl', True),
+        ('execParams', False),
+        ('loginParams', True),
+        ('validations', False)
+    ]
 
-def _validateKey(key):
-    if not(key in ['execUrl', 'program', 'username', 'password']):
-        raise KeyError('Wrong settings key')
+    def __init__(self, d):
+        for key in d:
+            self._validateKey(key)
 
+        for key in self._keys:
+            if key[1] and not(key[0] in d):
+                raise KeyError('Missing required config property ' + key[0])
 
-def getAll():
-    return data
+        self._data = d
 
-def get(key):
-    _validateKey(key)
-    return data[key]
+    def _validateKey(self, key):
+        # key.split('.')[0] to use only first level property
+        if not(key.split('.')[0] in [i[0] for i in self._keys]):
+            raise KeyError('Wrong settings key ' + key)
 
-def set(key, value):
-    _validateKey(key)
-    data[key] = value
+    def _dotNotationGet(self, key):
+        keys = key.split('.')
+        lastPlace = reduce(operator.getitem, keys[:-1], self._data)
+        return lastPlace[keys[-1]]
+
+    def _dotNotationSet(self, key, value):
+        keys = key.split('.')
+        lastPlace = reduce(operator.getitem, keys[:-1], self._data)
+        lastPlace[keys[-1]] = value
+
+    def getAll(self):
+        return self._data
+
+    def get(self, key):
+        self._validateKey(key)
+        return self._dotNotationGet(key)
+
+    def set(self, key, value):
+        self._validateKey(key)
+        self._dotNotationSet(key, value)
