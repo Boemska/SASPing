@@ -1,6 +1,4 @@
 # from .functions import login
-import urllib
-import urllib2
 import ssl
 import requests
 
