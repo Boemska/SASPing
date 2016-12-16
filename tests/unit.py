@@ -23,7 +23,7 @@ class TestSettings(unittest.TestCase):
         self.assertEqual(self.settings.get('execUrl'), 'testValue')
 
     def testDotNotationGet(self):
-        self.assertIsNotNone(self.settings.get('execParams.program'))
+        self.assertIsNotNone(self.settings.get('execParams._program'))
 
     def testDotNotationSet(self):
         self.settings.set('execParams.testParam', 'testValue')
@@ -37,7 +37,7 @@ class TestSettings(unittest.TestCase):
         self.assertTrue(type(data['loginUrl']) is unicode)
         self.assertTrue(type(data['execParams']) is dict)
         self.assertTrue(type(data['loginParams']) is dict)
-        self.assertTrue(type(data['execParams']['program']) is unicode)
+        self.assertTrue(type(data['execParams']['_program']) is unicode)
         self.assertTrue(type(data['loginParams']['username']) is unicode)
         self.assertTrue(type(data['loginParams']['password']) is unicode)
 
