@@ -31,10 +31,11 @@ def getHiddenParams(responseHtml):
         return params
 
 def validateResponse(responseHtml, validations):
+    # validation return tuple - (status, which test failed, failed pattern, message)
     for validationPatt in validations['mustContain']:
         if not(re.search(validationPatt, responseHtml)):
-            return ('fail', 'mustContain', validationPatt)
+            return ('fail', 'mustContain', validationPatt, None)
     for validationPatt in validations['cantContain']:
         if re.search(validationPatt, responseHtml):
-            return ('fail', 'cantContain', validationPatt)
-    return ('success')
+            return ('fail', 'cantContain', validationPatt, None)
+    return ('success', None, None, None)

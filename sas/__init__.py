@@ -3,6 +3,7 @@ import requests
 import json
 import sys
 import re
+import time
 
 # local imports
 from settings import Settings
@@ -13,11 +14,12 @@ _session = requests.Session()
 def run(settingsPath):
     try:
         testConfigObjects = json.load(open(settingsPath))
-
+        # TODO: validate if all ids are unique
         testData = []
         for testConfig in testConfigObjects:
+            startTime = time.time()
             status = call(Settings(testConfig))
-            testData.append(status)
+            testData.append(status + (startTime, time.time() - startTime))
 
         print testData
     # KeyError throw by Settings class if configuration is not ok
@@ -53,9 +55,8 @@ def call(settings):
         loginUrl = functions.getLoginUrl(req.text)
         hiddenParams = functions.getHiddenParams(req.text)
         if _login(loginUrl, hiddenParams, settings):
-            print('Login successful')
             return call(settings)
         else:
-            return ('error', 'Failed login')
+            return ('fail', None, None,'Failed login')
     else:
         return functions.validateResponse(req.text, settings.get('validations'))
