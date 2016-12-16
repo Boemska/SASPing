@@ -18,6 +18,7 @@ def run(settingsPath):
             sys.stderr.write('\nThere is an error in settings.json.\n')
             sys.stderr.write('Please read the documentation and fix errors.\n')
             sys.stderr.write('Error message: {0}\n\n'.format(str(e)))
+            print 'Test {0} failed because of the wrong config object\n'.format(testConfig['id'])
             sys.exit(1)
 
 def _login(loginUrl, hiddenParams, settings):
