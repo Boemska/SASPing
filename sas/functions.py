@@ -29,3 +29,12 @@ def getHiddenParams(responseHtml):
             subMatch = re.search('name="([^"]*)"\svalue="([^"]*)', match)
             params[subMatch.group(1)] = subMatch.group(2)
         return params
+
+def validateResponse(responseHtml, validations):
+    for validationPatt in validations['mustContain']:
+        if not(re.search(validationPatt, responseHtml)):
+            return ('fail', 'mustContain', validationPatt)
+    for validationPatt in validations['cantContain']:
+        if re.search(validationPatt, responseHtml):
+            return ('fail', 'cantContain', validationPatt)
+    return ('success')
