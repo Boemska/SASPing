@@ -24,6 +24,8 @@ class TestSettings(unittest.TestCase):
 
     def testDotNotationGet(self):
         self.assertIsNotNone(self.settings.get('execParams._program'))
+        self.assertIsNotNone(self.settings.get('loginParams.username'))
+        self.assertIsNotNone(self.settings.get('loginParams.password'))
 
     def testDotNotationSet(self):
         self.settings.set('execParams.testParam', 'testValue')

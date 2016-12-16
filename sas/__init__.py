@@ -1,7 +1,7 @@
-# from .functions import login
 import ssl
 import requests
 import json
+import sys
 
 # local imports
 from settings import Settings
@@ -12,7 +12,13 @@ _session = requests.Session()
 def run(settingsPath):
     testConfigObjects = json.load(open(settingsPath))
     for testConfig in testConfigObjects:
-        call(Settings(testConfig))
+        try:
+            call(Settings(testConfig))
+        except KeyError as e:
+            sys.stderr.write('\nThere is an error in settings.json.\n')
+            sys.stderr.write('Please read the documentation and fix errors.\n')
+            sys.stderr.write('Error message: {0}\n\n'.format(str(e)))
+            sys.exit(1)
 
 def _login(loginUrl, hiddenParams, settings):
     params = {
