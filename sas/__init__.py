@@ -53,11 +53,20 @@ def _login(loginUrl, hiddenParams, settings):
     }
     params.update(hiddenParams)
 
-    req = _session.post(functions.getHostUrl(settings.get('execUrl')) + loginUrl, params, verify=False)
-    return not(functions.needToLogin(req.text))
+    try:
+        req = _session.post(functions.getHostUrl(settings.get('execUrl')) + loginUrl, params, verify=False, timeout=30)
+        return req.status_code == 200 and not(functions.needToLogin(req.text))
+    except requests.exceptions.Timeout:
+        return False
 
 def call(settings, afterLogin=False):
-    req = _session.post(settings.get('execUrl'), settings.get('execParams'), verify=False)
+    try:
+        req = _session.post(settings.get('execUrl'), settings.get('execParams'), verify=False, timeout=30)
+    except requests.exceptions.Timeout:
+        return ('fail', None, None,'Request timeout', 0)
+
+    if req.status_code != 200:
+        return ('fail', None, None, 'Request failed - status ' + req.status_code, 0)
 
     if functions.needToLogin(req.text):
         loginUrl = functions.getLoginUrl(req.text)
