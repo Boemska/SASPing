@@ -1,10 +1,8 @@
 import ssl
 import requests
-import json
 import sys
 import re
 import time
-import csv
 
 # local imports
 from settings import Settings
@@ -12,21 +10,13 @@ import functions
 
 _session = requests.Session()
 
-def run(settingsPath, outputPath):
+def run(testConfigObjects):
+    testsData = []
     try:
-        testConfigObjects = json.load(open(settingsPath))
-        # TODO: validate if all ids are unique
-        testsData = []
         for testConfig in testConfigObjects:
             startTime = time.time()
             status = call(Settings(testConfig))
             testsData.append(status + (startTime, str(round(time.time() - startTime, 3)) + ' seconds'))
-
-        # CSV file headers - "id, status, which test failed, failed pattern, message, had to login, time of execution, execution duration"
-        with open(outputPath, "a") as outFile:
-            writer = csv.writer(outFile)
-            writer.writerows(testsData)
-
     # KeyError throw by Settings class if configuration is not ok
     except KeyError as e:
         sys.stderr.write('\nThere is an error in settings.json.\n')
@@ -34,13 +24,8 @@ def run(settingsPath, outputPath):
         sys.stderr.write('Error message: {0}\n\n'.format(str(e)))
         print 'Test {0} failed because of the wrong config object\n'.format(testConfig['id'])
         sys.exit(1)
-    except ValueError as e:
-        sys.stderr.write('\nThere is an error in settings.json.\n')
-        sys.stderr.write('\nInvalid json with message: {0}\n\n'.format(str(e)))
-        sys.exit(1)
-    except IOError as e:
-        sys.stderr.write('\n{0}\n\n'.format(str(e)))
-        sys.exit(1)
+
+    return testsData
 
 def _login(loginUrl, hiddenParams, settings):
     params = {
