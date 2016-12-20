@@ -7,5 +7,5 @@ setup(
     version='0.1',
     author='bojan88',
     url='https://builds.boemskats.com/bojan/sasping',
-    packages=['sas']
+    packages=['sasping']
 )
