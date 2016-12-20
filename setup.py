@@ -7,6 +7,6 @@ setup(
     version='0.1',
     author='bojan88',
     url='https://builds.boemskats.com/bojan/sasping',
-    packages=['sasping'],
+    packages=['sasping', 'sasping.sas'],
     package_dir={'sasping': '.'}
 )
