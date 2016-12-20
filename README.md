@@ -11,7 +11,7 @@ Stateless SAS program runner via web interface
 `python main.py [settings json file path] [output csv file path]`
 
 output CSV file headers:
-`status, which test failed, failed pattern, message, had to login, time of execution, execution duration`
+`id, status, which test failed, failed pattern, message, had to login, time of execution, execution duration`
 
 
 ### Test

@@ -22,7 +22,7 @@ def run(settingsPath, outputPath):
             status = call(Settings(testConfig))
             testsData.append(status + (startTime, str(round(time.time() - startTime, 3)) + ' seconds'))
 
-        # CSV file headers - "status, which test failed, failed pattern, message, had to login, time of execution, execution duration"
+        # CSV file headers - "id, status, which test failed, failed pattern, message, had to login, time of execution, execution duration"
         with open(outputPath, "a") as outFile:
             writer = csv.writer(outFile)
             writer.writerows(testsData)
@@ -74,7 +74,7 @@ def call(settings, afterLogin=False):
         if _login(loginUrl, hiddenParams, settings):
             return call(settings, True)
         else:
-            return ('fail', None, None,'Failed login')
+            return (settings.get('id'),) + ('fail', None, None,'Failed login')
     else:
         # (0|1,) - true or false for "had to login" in csv
-        return functions.validateResponse(req.text, settings.get('validations')) + (1 if afterLogin else 0,)
+        return (settings.get('id'),) + functions.validateResponse(req.text, settings.get('validations')) + (1 if afterLogin else 0,)
