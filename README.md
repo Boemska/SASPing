@@ -8,9 +8,10 @@ Stateless SAS program runner via web interface
 
 ### How to run
 
-`python main.py [web endpoint url] [sas program path] [username] [password]`
+`python main.py [settings json file path] [output csv file path]`
 
-or edit `settings.json` and run `python main.py`
+output CSV file headers:
+`status, which test failed, failed pattern, message, had to login, time of execution, execution duration`
 
 
 ### Test

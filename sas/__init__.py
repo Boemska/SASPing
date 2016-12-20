@@ -4,6 +4,7 @@ import json
 import sys
 import re
 import time
+import csv
 
 # local imports
 from settings import Settings
@@ -11,17 +12,21 @@ import functions
 
 _session = requests.Session()
 
-def run(settingsPath):
+def run(settingsPath, outputPath):
     try:
         testConfigObjects = json.load(open(settingsPath))
         # TODO: validate if all ids are unique
-        testData = []
+        testsData = []
         for testConfig in testConfigObjects:
             startTime = time.time()
             status = call(Settings(testConfig))
-            testData.append(status + (startTime, time.time() - startTime))
+            testsData.append(status + (startTime, str(round(time.time() - startTime, 3)) + ' seconds'))
 
-        print testData
+        # CSV file headers - "status, which test failed, failed pattern, message, had to login, time of execution, execution duration"
+        with open(outputPath, "a") as outFile:
+            writer = csv.writer(outFile)
+            writer.writerows(testsData)
+
     # KeyError throw by Settings class if configuration is not ok
     except KeyError as e:
         sys.stderr.write('\nThere is an error in settings.json.\n')
@@ -32,6 +37,9 @@ def run(settingsPath):
     except ValueError as e:
         sys.stderr.write('\nThere is an error in settings.json.\n')
         sys.stderr.write('\nInvalid json with message: {0}\n\n'.format(str(e)))
+        sys.exit(1)
+    except IOError as e:
+        sys.stderr.write('\n{0}\n\n'.format(str(e)))
         sys.exit(1)
 
 def _login(loginUrl, hiddenParams, settings):
@@ -48,15 +56,16 @@ def _login(loginUrl, hiddenParams, settings):
     req = _session.post(functions.getHostUrl(settings.get('execUrl')) + loginUrl, params, verify=False)
     return not(functions.needToLogin(req.text))
 
-def call(settings):
+def call(settings, afterLogin=False):
     req = _session.post(settings.get('execUrl'), settings.get('execParams'), verify=False)
 
     if functions.needToLogin(req.text):
         loginUrl = functions.getLoginUrl(req.text)
         hiddenParams = functions.getHiddenParams(req.text)
         if _login(loginUrl, hiddenParams, settings):
-            return call(settings)
+            return call(settings, True)
         else:
             return ('fail', None, None,'Failed login')
     else:
-        return functions.validateResponse(req.text, settings.get('validations'))
+        # (0|1,) - true or false for "had to login" in csv
+        return functions.validateResponse(req.text, settings.get('validations')) + (1 if afterLogin else 0,)
