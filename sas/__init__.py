@@ -13,9 +13,9 @@ _session = requests.Session()
 
 def run(testConfigObjects):
     testsData = []
-    for testConfig in testConfigObjects:
+    for settings in [Settings(testConfig) for testConfig in testConfigObjects]:
         startTime = time.time()
-        response = call(Settings(testConfig))
+        response = call(settings)
         response.addTime(startTime, str(round(time.time() - startTime, 3)) + ' seconds')
         testsData.append(dict(response))
 
