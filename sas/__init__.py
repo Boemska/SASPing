@@ -6,6 +6,7 @@ import time
 
 # local imports
 from settings import Settings
+from response import Response
 import functions
 
 _session = requests.Session()
@@ -15,8 +16,9 @@ def run(testConfigObjects):
     try:
         for testConfig in testConfigObjects:
             startTime = time.time()
-            status = call(Settings(testConfig))
-            testsData.append(status + (startTime, str(round(time.time() - startTime, 3)) + ' seconds'))
+            response = call(Settings(testConfig))
+            response.addTime(startTime, str(round(time.time() - startTime, 3)) + ' seconds')
+            testsData.append(dict(response))
     # KeyError throw by Settings class if configuration is not ok
     except KeyError as e:
         sys.stderr.write('\nThere is an error in settings.json.\n')
@@ -59,7 +61,10 @@ def call(settings, afterLogin=False):
         if _login(loginUrl, hiddenParams, settings):
             return call(settings, True)
         else:
-            return (settings.get('id'),) + ('fail', None, None,'Failed login')
+            return Response('fail', None, None,'Failed login').setId(settings.get('id'))
     else:
         # (0|1,) - true or false for "had to login" in csv
-        return (settings.get('id'),) + functions.validateResponse(req.text, settings.get('validations')) + (1 if afterLogin else 0,)
+        response = functions.validateResponse(req.text, settings.get('validations'))
+        if afterLogin:
+            response.setHadToLoginFlag()
+        return response.setId(settings.get('id'))

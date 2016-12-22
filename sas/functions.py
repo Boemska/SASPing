@@ -1,5 +1,6 @@
 import re
 from urlparse import urlparse
+from response import Response
 
 # local imports
 
@@ -32,10 +33,8 @@ def getHiddenParams(responseHtml):
 
 def validateResponse(responseHtml, validations):
     # validation return tuple - (status, which test failed, failed pattern, message)
-    for validationPatt in validations['mustContain']:
-        if not(re.search(validationPatt, responseHtml)):
-            return ('fail', 'mustContain', validationPatt, None)
-    for validationPatt in validations['cantContain']:
-        if re.search(validationPatt, responseHtml):
-            return ('fail', 'cantContain', validationPatt, None)
-    return ('success', None, None, None)
+    for validationGroup in ['mustContain', 'cantContain']:
+        for validationPatt in validations[validationGroup]:
+            if not(re.search(validationPatt, responseHtml)):
+                return Response('fail', validationGroup, validationPatt)
+    return Response('success')
