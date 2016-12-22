@@ -13,19 +13,11 @@ _session = requests.Session()
 
 def run(testConfigObjects):
     testsData = []
-    try:
-        for testConfig in testConfigObjects:
-            startTime = time.time()
-            response = call(Settings(testConfig))
-            response.addTime(startTime, str(round(time.time() - startTime, 3)) + ' seconds')
-            testsData.append(dict(response))
-    # KeyError throw by Settings class if configuration is not ok
-    except KeyError as e:
-        sys.stderr.write('\nThere is an error in settings.json.\n')
-        sys.stderr.write('Please read the documentation and fix errors.\n')
-        sys.stderr.write('Error message: {0}\n\n'.format(str(e)))
-        print 'Test {0} failed because of the wrong config object\n'.format(testConfig['id'])
-        sys.exit(1)
+    for testConfig in testConfigObjects:
+        startTime = time.time()
+        response = call(Settings(testConfig))
+        response.addTime(startTime, str(round(time.time() - startTime, 3)) + ' seconds')
+        testsData.append(dict(response))
 
     return testsData
 

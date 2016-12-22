@@ -20,7 +20,7 @@ class Settings:
 
         for key in self._keys:
             if key[1] and not(self._dotNotationGet(key[0], d)):
-                raise KeyError('Missing required config property "{0}"'.format(key[0]))
+                raise KeyError('Missing required config property "{0}" in config with id "{1}"'.format(key[0], d['id']))
 
         self._data = d
 
