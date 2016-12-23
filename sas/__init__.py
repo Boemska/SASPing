@@ -42,10 +42,14 @@ def call(settings, afterLogin=False):
     try:
         req = _session.post(settings.get('execUrl'), settings.get('execParams'), timeout=30)
     except requests.exceptions.Timeout:
-        return ('fail', None, None,'Request timeout', 0)
+        return Response('fail', None, None,'Request timeout').setId(settings.get('id'))
+    except requests.exceptions.ConnectionError:
+        return Response('fail', None, None,'Name or service not known').setId(settings.get('id'))
+    except requests.exceptions.RequestException as e:
+        return Response('fail', None, None, str(e)).setId(settings.get('id'))
 
     if req.status_code != 200:
-        return ('fail', None, None, 'Request failed - status ' + req.status_code, 0)
+        return Response('fail', None, None, 'Request failed - status ' + req.status_code).setId(settings.get('id'))
 
     if functions.needToLogin(req.text):
         loginUrl = functions.getLoginUrl(req.text)

@@ -1,12 +1,12 @@
 
 class Response:
-    def __init__(self, status, failedTestGroup=None, failedPatt=None, message=None):
+    def __init__(self, status, failedTestGroup=None, failedPatt=None, message=None, hadToLogin=False):
         self.id              = None
         self.status          = status
         self.failedTestGroup = failedTestGroup
         self.failedPatt      = failedPatt
         self.message         = message
-        self.hadToLogin      = False
+        self.hadToLogin      = hadToLogin
 
     def addTime(self, timestamp, execTime):
         self.timestamp = timestamp
@@ -30,4 +30,3 @@ class Response:
         yield 'timestamp', self.timestamp
         yield 'execution time', self.execTime
         yield 'had to login', 1 if self.hadToLogin else 0
-        
