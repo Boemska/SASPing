@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SASPing Report</title>
+    <link inline rel="stylesheet" href="build/style.css">
+    <!-- python inserted data -->
+    <!-- data -->
+    <script inline src="index.js" charset="utf-8" type="text/javascript"></script>
+  </head>
+  <body>
+    <div id="content">
+      <div class="row">
+        <div id="time-nav" class="row-content sm-block">
+          <div>
+            <h1 class="c-heading">SASPing Activity</h1>
+            <p id="time-period" class="desc">date</p>
+          </div>
+          <div id="time-btns">
+            <h3 onclick="updateData(this, 'all')" class="c-heading time-btn">All Time</h3>
+            <h3 onclick="updateData(this, 'month')" class="c-heading time-btn">Last Month</h3>
+            <h3 onclick="updateData(this, 'week')" class="c-heading time-btn">Last Week</h3>
+            <h3 onclick="updateData(this, 'day')" class="c-heading time-btn active">Today</h3>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="row-content">
+          <div id="main-chart" class="card">
+            Highcharts chart
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="row-content sm-block">
+          <div class="card row-content">
+            <div class="center-vert">
+              <h2 id="total-reqs" class="big-val center-text">-</h2>
+              <p class="desc center-text">Total requests</p>
+            </div>
+            <div id="succ-req">
+              <div class="gauge center-table">
+                <div class="circle">
+                  <span class="prec">0-</span>
+                </div>
+              </div>
+              <p class="desc center-text">Successful requests</p>
+            </div>
+          </div>
+          <div class="col">
+            <div class="card row-content">
+              <div>
+                <h2 id="avg-req-time" class="big-val center-text">-</h2>
+                <p class="desc center-text">Average time</p>
+              </div>
+              <div>
+                <h2 id="avg-login-req-time" class="big-val center-text">-</h2>
+                <p class="desc center-text">Average time with login</p>
+              </div>
+              <div>
+                <h2 id="avg-wologin-req-time" class="big-val center-text">-</h2>
+                <p class="desc center-text">Average time w/o login</p>
+              </div>
+            </div>
+            <div class="card row-content">
+              <div>
+                <h2 id="validation-errors" class="big-val center-text">-</h2>
+                <p class="desc center-text">Validation errors</p>
+              </div>
+              <div>
+                <h2 id="req-errors" class="big-val center-text">-</h2>
+                <p class="desc center-text">Request errors</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

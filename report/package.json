@@ -1,0 +1,25 @@
+{
+  "name": "sasping_report",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "watch": {
+    "style": "style.scss"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "http-server . -a localhost -p 8000 -c-1 & npm-watch",
+    "style": "sass style.scss | cleancss > build/style.css",
+    "build": "./node_modules/inline-source-cli/dist/index.js index.html --compress true > ./build/index.html"
+  },
+  "author": "bojan@boemskats.com",
+  "license": "ISC",
+  "dependencies": {
+    "blaze": "^3.2.0",
+    "clean-css": "^3.4.23",
+    "inline-source-cli": "^1.1.1",
+    "node-sass": "^4.1.1",
+    "npm-watch": "^0.1.7",
+    "sass": "^0.5.0"
+  }
+}
