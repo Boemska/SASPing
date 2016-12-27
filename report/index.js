@@ -6,13 +6,12 @@ function setGauge(el, percent) {
   var i = 0;
   var interval = setInterval(function() {
     try {
-      i++;
       el.querySelector('.prec').innerHTML = i + '%';
 
       var deg = i * 360 / 100;
       el.style['background-image'] = 'linear-gradient('+ (deg <= 180 ? deg+90 : deg-90) +'deg, transparent 50%, '+(deg <= 180 ? fontCol : mainCol)+' 50%),linear-gradient(90deg, '+fontCol+' 50%, transparent 50%)';
 
-      if(i >= percent) {
+      if(i++ >= percent) {
         clearInterval(interval);
       }
     } catch(e) {
@@ -80,8 +79,8 @@ function updateData(el, period) {
   });
 
   document.querySelector('#total-reqs').innerHTML = curData.length;
-  setGauge(document.querySelector('#succ-req .gauge'), Math.round((successfulReqs / curData.length).toFixed(2) * 100));
-  document.querySelector('#avg-req-time').innerHTML = Math.round(curData.map(execTimeFn).reduce(avgFn, 0).toFixed(2) * 100) + 'ms';
+  setGauge(document.querySelector('#succ-req .gauge'),successfulReqs === 0 ? 0 : Math.round((successfulReqs / curData.length).toFixed(2) * 100));
+  document.querySelector('#avg-req-time').innerHTML = curData.length === 0 ? '-' : Math.round(curData.map(execTimeFn).reduce(avgFn, 0).toFixed(2) * 100) + 'ms';
   document.querySelector('#avg-login-req-time').innerHTML = loginReqs.length === 0 ? '-' : Math.round(loginReqs.map(execTimeFn).reduce(avgFn, 0).toFixed(2) * 100) + 'ms';
   document.querySelector('#avg-wologin-req-time').innerHTML = wloginReqs.length === 0 ? '-' : Math.round(wloginReqs.map(execTimeFn).reduce(avgFn, 0).toFixed(2) * 100) + 'ms';
   document.querySelector('#validation-errors').innerHTML = curData.filter(function(req) {
