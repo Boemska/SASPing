@@ -41,7 +41,8 @@ def main():
                 print 'Created file {0}\n'.format(sys.argv[2])
         elif sys.argv[2].endswith('.html'):
             testsArrays = [[test[key] for key in keys] for test in testsData];
-            if os.path.isfile(sys.argv[2]):
+            outputFileExists = os.path.isfile(sys.argv[2])
+            if outputFileExists:
                 with open(sys.argv[2], 'r') as finput:
                     html = finput.read()
                     jsonData = re.search('<script>var data = (.+)<\/script>', html).group(1)
@@ -61,7 +62,10 @@ def main():
                 jsonOut = json.dumps(testsArrays)
                 foutput.write(html.replace('<!-- data -->', '<script>var data = {0}</script>'.format(jsonOut)))
                 foutput.close();
-            print 'Created file {0}\n'.format(sys.argv[2])
+            if outputFileExists:
+                print 'Updated file {0}\n'.format(sys.argv[2])
+            else:
+                print 'Created file {0}\n'.format(sys.argv[2])
         else:
             sys.stderr.write('\nWrong output format. Please read documentation and try again.\n\n')
             sys.exit(1)

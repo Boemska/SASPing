@@ -59,7 +59,7 @@ function updateData(el, period) {
     el.classList.add('active');
   }
 
-  var curData = data.filter(function(el) {
+  var curData = (typeof data !=='undefined' ? data : testData).filter(function(el) {
     return el[5] > prev.getTime()/1000 && el[5] < cur.getTime()/1000;
   });
 
@@ -81,10 +81,10 @@ function updateData(el, period) {
   });
 
   document.querySelector('#total-reqs').innerHTML = curData.length;
-  setGauge(document.querySelector('#succ-req .gauge'), (successfulReqs / curData.length).toFixed(2) * 100);
-  document.querySelector('#avg-req-time').innerHTML = curData.map(execTimeFn).reduce(avgFn, 0).toFixed(2) * 100 + 'ms';
-  document.querySelector('#avg-login-req-time').innerHTML = loginReqs.length === 0 ? '-' : loginReqs.map(execTimeFn).reduce(avgFn, 0).toFixed(2) * 100 + 'ms';
-  document.querySelector('#avg-wologin-req-time').innerHTML = wloginReqs.length === 0 ? '-' : wloginReqs.map(execTimeFn).reduce(avgFn, 0).toFixed(2) * 100 + 'ms';
+  setGauge(document.querySelector('#succ-req .gauge'), Math.round((successfulReqs / curData.length).toFixed(2) * 100));
+  document.querySelector('#avg-req-time').innerHTML = Math.round(curData.map(execTimeFn).reduce(avgFn, 0).toFixed(2) * 100) + 'ms';
+  document.querySelector('#avg-login-req-time').innerHTML = loginReqs.length === 0 ? '-' : Math.round(loginReqs.map(execTimeFn).reduce(avgFn, 0).toFixed(2) * 100) + 'ms';
+  document.querySelector('#avg-wologin-req-time').innerHTML = wloginReqs.length === 0 ? '-' : Math.round(wloginReqs.map(execTimeFn).reduce(avgFn, 0).toFixed(2) * 100) + 'ms';
   document.querySelector('#validation-errors').innerHTML = curData.filter(function(req) {
     return req[1] === 'fail' && req[2] !== null;
   }).length || '-';
@@ -98,8 +98,8 @@ document.addEventListener("DOMContentLoaded", function() {
   updateData();
 });
 
-//test data
-var data = [
+// test data
+var testData = [
   [1, "fail", "cantContain", "<title>(Stored Process Error|SASStoredProcess)</title>[\\s\\S]*<h2>.*not a valid stored process path.</h2>", null, 1481759319.424848, "1.991 seconds", 1],
   ["test 2", "fail", "mustContain", "\"usermessage\" : \"blank\"", null, 1482450821.47054, "0.055 seconds", 0],
   ["bad url test", "fail", null, null, "No connection adapters were found for 'htt://bad.com'", 1482450821.47054, "0.002 seconds", 0],
