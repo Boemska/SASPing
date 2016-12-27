@@ -17,6 +17,7 @@
   "dependencies": {
     "blaze": "^3.2.0",
     "clean-css": "^3.4.23",
+    "foundation-sites": "^6.3.0",
     "inline-source-cli": "^1.1.1",
     "node-sass": "^4.1.1",
     "npm-watch": "^0.1.7",

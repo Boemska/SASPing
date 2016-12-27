@@ -2,9 +2,18 @@
 @import './node_modules/blaze/scss/components.headings.scss';
 @import './node_modules/blaze/scss/components.cards.scss';
 
+
 $mainCol: #faad39;
 $backCol: #2f2f2f;
 $fontCol: #91959e;
+
+$table-background: darken($backCol, 10%);
+$table-head-background: darken($backCol, 20%);
+$table-head-font-color: $fontCol;
+@import './node_modules/foundation-sites/scss/_global.scss';
+@import './node_modules/foundation-sites/scss/util/_util.scss';
+@import './node_modules/foundation-sites/scss/components/_table.scss';
+@include foundation-table;
 
 body {
   padding: 20px;
@@ -84,6 +93,20 @@ body {
       margin-bottom: 3px;
     }
   }
+
+  #errors-table-row {
+    .c-card__item-padding {
+      padding: .5em 0;
+    }
+    table {
+      min-width: 100%;
+      tr {
+        td, th {
+          padding: 0 15px;
+        }
+      }
+    }
+  }
 }
 
 .gauge {
@@ -136,7 +159,7 @@ body {
   #content {
     .row {
       .row-content.sm-block {
-        display: block
+        display: block;
       }
     }
 

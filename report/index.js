@@ -27,7 +27,6 @@ function updateData(el, period) {
   var cur, prev;
 
   switch(period) {
-    case 'day':
     case 'week':
       cur = new Date();
       prev = new Date();
@@ -91,6 +90,36 @@ function updateData(el, period) {
   document.querySelector('#req-errors').innerHTML = curData.filter(function(req) {
     return req[1] === 'fail' && req[2] === null;
   }).length || '-';
+
+  var errorsTableGridRow = document.querySelector('#errors-table-row');
+  var errorsTable = document.querySelector('#errors-table-row table');
+  var errorsTableBody = document.querySelector('#errors-table-row table tbody');
+  errorsTableBody.innerHTML = ''; //remove all rows
+
+  var errorReqs = curData.filter(function(req) {
+    return req[1] === 'fail';
+  });
+  if(errorReqs.length > 0) {
+    errorsTableGridRow.style.display = '';
+    errorReqs.forEach(function(req) {
+      var reason = req[2] === null ? 'Request error' : 'Validation error';
+      var issue = req[2] === null ? req[4] : req[2] + ' -> ' + req[3];
+      var row = document.createElement('tr');
+      var col = document.createElement('td');
+      col.innerHTML = reason;
+      row.appendChild(col);
+
+      col = document.createElement('td');
+      var p = document.createElement('p');
+      p.appendChild(document.createTextNode(issue));
+      col.appendChild(p);
+      row.appendChild(col);
+
+      errorsTableBody.appendChild(row);
+    });
+  } else {
+    errorsTableGridRow.style.display = 'none';
+  }
 
 }
 
