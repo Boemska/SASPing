@@ -4,7 +4,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SASPing Report</title>
+    <link inline rel="stylesheet" href="./node_modules/tlite/tlite.css">
     <link inline rel="stylesheet" href="build/style.css">
+    <script inline src="./node_modules/tlite/tlite.js" charset="utf-8" type="text/javascript"></script>
     <script inline src="./node_modules/highcharts/highcharts.js" charset="utf-8" type="text/javascript"></script>
     <script inline src="index.js" charset="utf-8" type="text/javascript"></script>
     <!-- python inserted data -->
@@ -93,15 +95,14 @@
                   <span class="c-table__cell">Issue</span>
                 </div>
               </div> -->
-              <div class="table-scroll">
-                <table class="striped">
-                  <thead>
-                    <th>Fail reason</th>
-                    <th>Issue</th>
-                  </thead>
-                  <tbody></tbody>
-                </table>
-              </div>
+              <table class="striped">
+                <thead>
+                  <th>ID</th>
+                  <th>Execution Time</th>
+                  <th>Error</th>
+                </thead>
+                <tbody></tbody>
+              </table>
             </div>
           </div>
         </div>

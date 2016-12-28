@@ -102,17 +102,23 @@ function updateData(el, period) {
   if(errorReqs.length > 0) {
     errorsTableGridRow.style.display = '';
     errorReqs.forEach(function(req) {
-      var reason = req[2] === null ? 'Request error' : 'Validation error';
-      var issue = req[2] === null ? req[4] : req[2] + ' -> ' + req[3];
+      var id = req[0];
+      var execTime = new Date(req[5] * 1000);
       var row = document.createElement('tr');
       var col = document.createElement('td');
-      col.innerHTML = reason;
+      col.innerHTML = id;
       row.appendChild(col);
 
       col = document.createElement('td');
-      var p = document.createElement('p');
-      p.appendChild(document.createTextNode(issue));
-      col.appendChild(p);
+      col.innerHTML = execTime.toLocaleString(navigator.language);
+      row.appendChild(col);
+
+      col = document.createElement('td');
+      col.classList.add('has-tooltip');
+      col.setAttribute('title', req[2] === null ? req[4] : req[2] + ' -> ' + req[3]);
+      col.innerHTML = req[2] === null ?
+                        'Stored Process Application failed to respond' :
+                        'SAS Stored Process application failed to validate';
       row.appendChild(col);
 
       errorsTableBody.appendChild(row);
@@ -163,6 +169,10 @@ function updateData(el, period) {
         })
       }
     ]
+  });
+
+  tlite(function(el) {
+    return el.classList.contains('has-tooltip') && {grav: 'se'};
   });
 }
 
