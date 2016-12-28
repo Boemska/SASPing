@@ -1,6 +1,7 @@
 //colors from style.scss
 var fontCol = '#91959e';
 var mainCol = '#faad39';
+var backCol = '#2f2f2f';
 
 function setGauge(el, percent) {
   var i = 0;
@@ -120,6 +121,49 @@ function updateData(el, period) {
     errorsTableGridRow.style.display = 'none';
   }
 
+  Highcharts.chart(document.querySelector('#main-chart > div'), {
+    chart: {
+        type: 'column',
+        height: 200,
+        backgroundColor: backCol
+    },
+    legend: {
+      itemStyle: {
+        color: fontCol
+      }
+    },
+    title: null,
+    xAxis: {
+      type: 'datetime',
+      dateTimeLabelFormats: {
+        minute: '%Y-%m-%d<br/>%H:%M',
+                hour: '%Y-%m-%d<br/>%H:%M',
+                day: '%Y<br/>%m-%d',
+                week: '%Y<br/>%m-%d',
+                month: '%Y-%m',
+                year: '%Y'
+      }
+    },
+    series: [
+      {
+        name: 'Requests with login',
+        data: loginReqs.map(function(req) {
+          return {
+            x: new Date(req[5] * 1000),
+            y: Number(req[6].replace(' seconds', ''))
+          };
+        })
+      }, {
+        name: 'Requests without login',
+        data: wloginReqs.map(function(req) {
+          return {
+            x: new Date(req[5] * 1000),
+            y: Number(req[6].replace(' seconds', ''))
+          };
+        })
+      }
+    ]
+  });
 }
 
 document.addEventListener("DOMContentLoaded", function() {
