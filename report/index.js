@@ -58,132 +58,132 @@ function updateData(el, period) {
     el.classList.add('active');
   }
 
-  var curData = (typeof data !=='undefined' ? data : testData).filter(function(el) {
-    return el[5] > prev.getTime()/1000 && el[5] < cur.getTime()/1000;
-  });
+  Papa.parse('/sasping_data.csv', {
+    download: true,
+    complete: function(papaParsedObj) {
+      var data = papaParsedObj.data;
+      data.shift(); //remove headings
 
-  var avgFn = function(prev, cur, ind, arr) {
-    return prev + cur/arr.length;
-  };
-  var execTimeFn = function(req) {
-    return Number(req[6].replace(' seconds', ''));
-  };
+      var curData = data.filter(function(el) {
+        return el[5] > prev.getTime()/1000 && el[5] < cur.getTime()/1000;
+      });
 
-  var successfulReqs = curData.filter(function(req) {
-    return req[1] === 'success';
-  }).length;
-  var loginReqs = curData.filter(function(req) {
-    return req[7] === 1; //had to login = true
-  });
-  var wloginReqs = curData.filter(function(req) {
-    return req[7] === 0; //had to login = false
-  });
+      var avgFn = function(prev, cur, ind, arr) {
+        return prev + cur/arr.length;
+      };
+      var execTimeFn = function(req) {
+        return Number(req[6].replace(' seconds', ''));
+      };
 
-  document.querySelector('#total-reqs').innerHTML = curData.length;
-  setGauge(document.querySelector('#succ-req .gauge'),successfulReqs === 0 ? 0 : Math.round((successfulReqs / curData.length).toFixed(2) * 100));
-  document.querySelector('#avg-req-time').innerHTML = curData.length === 0 ? '-' : Math.round(curData.map(execTimeFn).reduce(avgFn, 0).toFixed(2) * 100) + 'ms';
-  document.querySelector('#avg-login-req-time').innerHTML = loginReqs.length === 0 ? '-' : Math.round(loginReqs.map(execTimeFn).reduce(avgFn, 0).toFixed(2) * 100) + 'ms';
-  document.querySelector('#avg-wologin-req-time').innerHTML = wloginReqs.length === 0 ? '-' : Math.round(wloginReqs.map(execTimeFn).reduce(avgFn, 0).toFixed(2) * 100) + 'ms';
-  document.querySelector('#validation-errors').innerHTML = curData.filter(function(req) {
-    return req[1] === 'fail' && req[2] !== null;
-  }).length || '-';
-  document.querySelector('#req-errors').innerHTML = curData.filter(function(req) {
-    return req[1] === 'fail' && req[2] === null;
-  }).length || '-';
+      var successfulReqs = curData.filter(function(req) {
+        return req[1] === 'success';
+      }).length;
+      var loginReqs = curData.filter(function(req) {
+        return req[7] === 1; //had to login = true
+      });
+      var wloginReqs = curData.filter(function(req) {
+        return req[7] === 0; //had to login = false
+      });
 
-  var errorsTableGridRow = document.querySelector('#errors-table-row');
-  var errorsTable = document.querySelector('#errors-table-row table');
-  var errorsTableBody = document.querySelector('#errors-table-row table tbody');
-  errorsTableBody.innerHTML = ''; //remove all rows
+      document.querySelector('#total-reqs').innerHTML = curData.length;
+      setGauge(document.querySelector('#succ-req .gauge'),successfulReqs === 0 ? 0 : Math.round((successfulReqs / curData.length).toFixed(2) * 100));
+      document.querySelector('#avg-req-time').innerHTML = curData.length === 0 ? '-' : Math.round(curData.map(execTimeFn).reduce(avgFn, 0).toFixed(2) * 100) + 'ms';
+      document.querySelector('#avg-login-req-time').innerHTML = loginReqs.length === 0 ? '-' : Math.round(loginReqs.map(execTimeFn).reduce(avgFn, 0).toFixed(2) * 100) + 'ms';
+      document.querySelector('#avg-wologin-req-time').innerHTML = wloginReqs.length === 0 ? '-' : Math.round(wloginReqs.map(execTimeFn).reduce(avgFn, 0).toFixed(2) * 100) + 'ms';
+      document.querySelector('#validation-errors').innerHTML = curData.filter(function(req) {
+        return req[1] === 'fail' && req[2];
+      }).length || '-';
+      document.querySelector('#req-errors').innerHTML = curData.filter(function(req) {
+        return req[1] === 'fail' && !req[2];
+      }).length || '-';
 
-  var errorReqs = curData.filter(function(req) {
-    return req[1] === 'fail';
-  });
-  if(errorReqs.length > 0) {
-    errorsTableGridRow.style.display = '';
-    errorReqs.forEach(function(req) {
-      var id = req[0];
-      var execTime = new Date(req[5] * 1000);
-      var row = document.createElement('tr');
-      var col = document.createElement('td');
-      col.innerHTML = id;
-      row.appendChild(col);
+      var errorsTableGridRow = document.querySelector('#errors-table-row');
+      var errorsTable = document.querySelector('#errors-table-row table');
+      var errorsTableBody = document.querySelector('#errors-table-row table tbody');
+      errorsTableBody.innerHTML = ''; //remove all rows
 
-      col = document.createElement('td');
-      col.innerHTML = execTime.toLocaleString(navigator.language);
-      row.appendChild(col);
+      var errorReqs = curData.filter(function(req) {
+        return req[1] === 'fail';
+      });
+      if(errorReqs.length > 0) {
+        errorsTableGridRow.style.display = '';
+        errorReqs.forEach(function(req) {
+          var id = req[0];
+          var execTime = new Date(req[5] * 1000);
+          var row = document.createElement('tr');
+          var col = document.createElement('td');
+          col.innerHTML = id;
+          row.appendChild(col);
 
-      col = document.createElement('td');
-      col.classList.add('has-tooltip');
-      col.setAttribute('title', req[2] === null ? req[4] : req[2] + ' -> ' + req[3]);
-      col.innerHTML = req[2] === null ?
-                        'Stored Process Application failed to respond' :
-                        'SAS Stored Process application failed to validate';
-      row.appendChild(col);
+          col = document.createElement('td');
+          col.innerHTML = execTime.toLocaleString(navigator.language);
+          row.appendChild(col);
 
-      errorsTableBody.appendChild(row);
-    });
-  } else {
-    errorsTableGridRow.style.display = 'none';
-  }
+          col = document.createElement('td');
+          col.classList.add('has-tooltip');
+          col.setAttribute('title', !req[2] ? req[4] : req[2] + ' -> ' + req[3]);
+          col.innerHTML = !req[2] ?
+                            'Stored Process Application failed to respond' :
+                            'SAS Stored Process application failed to validate';
+          row.appendChild(col);
 
-  Highcharts.chart(document.querySelector('#main-chart > div'), {
-    chart: {
-        type: 'column',
-        height: 200,
-        backgroundColor: backCol
-    },
-    legend: {
-      itemStyle: {
-        color: fontCol
+          errorsTableBody.appendChild(row);
+        });
+      } else {
+        errorsTableGridRow.style.display = 'none';
       }
-    },
-    title: null,
-    xAxis: {
-      type: 'datetime',
-      dateTimeLabelFormats: {
-        minute: '%Y-%m-%d<br/>%H:%M',
-                hour: '%Y-%m-%d<br/>%H:%M',
-                day: '%Y<br/>%m-%d',
-                week: '%Y<br/>%m-%d',
-                month: '%Y-%m',
-                year: '%Y'
-      }
-    },
-    series: [
-      {
-        name: 'Requests with login',
-        data: loginReqs.map(function(req) {
-          return {
-            x: new Date(req[5] * 1000),
-            y: Number(req[6].replace(' seconds', ''))
-          };
-        })
-      }, {
-        name: 'Requests without login',
-        data: wloginReqs.map(function(req) {
-          return {
-            x: new Date(req[5] * 1000),
-            y: Number(req[6].replace(' seconds', ''))
-          };
-        })
-      }
-    ]
-  });
 
-  tlite(function(el) {
-    return el.classList.contains('has-tooltip') && {grav: 'se'};
+      Highcharts.chart(document.querySelector('#main-chart > div'), {
+        chart: {
+            type: 'column',
+            height: 200,
+            backgroundColor: backCol
+        },
+        legend: {
+          itemStyle: {
+            color: fontCol
+          }
+        },
+        title: null,
+        xAxis: {
+          type: 'datetime',
+          dateTimeLabelFormats: {
+            minute: '%Y-%m-%d<br/>%H:%M',
+                    hour: '%Y-%m-%d<br/>%H:%M',
+                    day: '%Y<br/>%m-%d',
+                    week: '%Y<br/>%m-%d',
+                    month: '%Y-%m',
+                    year: '%Y'
+          }
+        },
+        series: [
+          {
+            name: 'Requests with login',
+            data: loginReqs.map(function(req) {
+              return {
+                x: new Date(req[5] * 1000),
+                y: Number(req[6].replace(' seconds', ''))
+              };
+            })
+          }, {
+            name: 'Requests without login',
+            data: wloginReqs.map(function(req) {
+              return {
+                x: new Date(req[5] * 1000),
+                y: Number(req[6].replace(' seconds', ''))
+              };
+            })
+          }
+        ]
+      });
+
+      tlite(function(el) {
+        return el.classList.contains('has-tooltip') && {grav: 'se'};
+      });
+    }
   });
 }
 
 document.addEventListener("DOMContentLoaded", function() {
   updateData();
 });
-
-// test data
-var testData = [
-  [1, "fail", "cantContain", "<title>(Stored Process Error|SASStoredProcess)</title>[\\s\\S]*<h2>.*not a valid stored process path.</h2>", null, 1481759319.424848, "1.991 seconds", 1],
-  ["test 2", "fail", "mustContain", "\"usermessage\" : \"blank\"", null, 1482450821.47054, "0.055 seconds", 0],
-  ["bad url test", "fail", null, null, "No connection adapters were found for 'htt://bad.com'", 1482450821.47054, "0.002 seconds", 0],
-  ["successful request", "success", null, null, null, 1482759704.265322, "0.706 seconds", 0]
-];
