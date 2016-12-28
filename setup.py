@@ -8,5 +8,8 @@ setup(
     author='bojan88',
     url='https://builds.boemskats.com/bojan/sasping',
     packages=['sasping', 'sasping.sas'],
-    package_dir={'sasping': '.'}
+    package_dir={'sasping': '.'},
+    package_data={
+      'report': ['./report/build/index.html'],
+   },
 )
