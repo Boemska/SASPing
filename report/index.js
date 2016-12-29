@@ -59,8 +59,11 @@ function updateData(el, period) {
     el.classList.add('active');
   }
 
-  Papa.parse('/sasping_data.csv', {
+  Papa.parse('sasping_data.csv', {
     download: true,
+    error: function(errMsg) {
+      alert('Error loading csv data with message: ' + errMsg);
+    },
     complete: function(papaParsedObj) {
       var data = papaParsedObj.data;
       data.shift(); //remove headings
