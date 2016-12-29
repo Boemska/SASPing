@@ -24,6 +24,7 @@ function setGauge(el, percent) {
 
 function updateData(el, period) {
   var periodEl = document.querySelector('#time-period');
+  var timeFormat = d3.time.format("%d/%m/%Y, %H:%M");
   var cur, prev;
 
   switch(period) {
@@ -49,7 +50,7 @@ function updateData(el, period) {
       prev.setDate(cur.getDate() - 1);
   }
   // TODO: change prev to first timestamp if smaller
-  periodEl.innerHTML = prev.toLocaleString(navigator.language) + ' - ' + cur.toLocaleString(navigator.language);
+  periodEl.innerHTML = timeFormat(prev) + ' - ' + timeFormat(cur);
 
   if(el) {
     document.querySelectorAll('.time-btn').forEach(function(btn) {
@@ -79,17 +80,17 @@ function updateData(el, period) {
         return req[1] === 'success';
       }).length;
       var loginReqs = curData.filter(function(req) {
-        return req[7] === 1; //had to login = true
+        return req[7] === '1'; //had to login = true
       });
       var wloginReqs = curData.filter(function(req) {
-        return req[7] === 0; //had to login = false
+        return req[7] === '0'; //had to login = false
       });
 
       document.querySelector('#total-reqs').innerHTML = curData.length;
       setGauge(document.querySelector('#succ-req .gauge'),successfulReqs === 0 ? 0 : Math.round((successfulReqs / curData.length).toFixed(2) * 100));
-      document.querySelector('#avg-req-time').innerHTML = curData.length === 0 ? '-' : Math.round(curData.map(execTimeFn).reduce(avgFn, 0).toFixed(2) * 100) + 'ms';
-      document.querySelector('#avg-login-req-time').innerHTML = loginReqs.length === 0 ? '-' : Math.round(loginReqs.map(execTimeFn).reduce(avgFn, 0).toFixed(2) * 100) + 'ms';
-      document.querySelector('#avg-wologin-req-time').innerHTML = wloginReqs.length === 0 ? '-' : Math.round(wloginReqs.map(execTimeFn).reduce(avgFn, 0).toFixed(2) * 100) + 'ms';
+      document.querySelector('#avg-req-time').innerHTML = curData.length === 0 ? '-' : Math.round(curData.map(execTimeFn).reduce(avgFn, 0).toFixed(2) * 1000) + 'ms';
+      document.querySelector('#avg-login-req-time').innerHTML = loginReqs.length === 0 ? '-' : Math.round(loginReqs.map(execTimeFn).reduce(avgFn, 0).toFixed(2) * 1000) + 'ms';
+      document.querySelector('#avg-wologin-req-time').innerHTML = wloginReqs.length === 0 ? '-' : Math.round(wloginReqs.map(execTimeFn).reduce(avgFn, 0).toFixed(2) * 1000) + 'ms';
       document.querySelector('#validation-errors').innerHTML = curData.filter(function(req) {
         return req[1] === 'fail' && req[2];
       }).length || '-';
@@ -116,7 +117,7 @@ function updateData(el, period) {
           row.appendChild(col);
 
           col = document.createElement('td');
-          col.innerHTML = execTime.toLocaleString(navigator.language);
+          col.innerHTML = timeFormat(execTime);
           row.appendChild(col);
 
           col = document.createElement('td');
@@ -133,52 +134,57 @@ function updateData(el, period) {
         errorsTableGridRow.style.display = 'none';
       }
 
-      Highcharts.chart(document.querySelector('#main-chart > div'), {
-        chart: {
-            type: 'column',
-            height: 200,
-            backgroundColor: backCol
-        },
-        legend: {
-          itemStyle: {
-            color: fontCol
-          }
-        },
-        title: null,
-        xAxis: {
-          type: 'datetime',
-          dateTimeLabelFormats: {
-            minute: '%Y-%m-%d<br/>%H:%M',
-                    hour: '%Y-%m-%d<br/>%H:%M',
-                    day: '%Y<br/>%m-%d',
-                    week: '%Y<br/>%m-%d',
-                    month: '%Y-%m',
-                    year: '%Y'
-          }
-        },
-        series: [
-          {
-            name: 'Requests with login',
-            data: loginReqs.map(function(req) {
-              return {
-                x: new Date(req[5] * 1000),
-                y: Number(req[6].replace(' seconds', ''))
-              };
-            })
-          }, {
-            name: 'Requests without login',
-            data: wloginReqs.map(function(req) {
-              return {
-                x: new Date(req[5] * 1000),
-                y: Number(req[6].replace(' seconds', ''))
-              };
-            })
-          }
-        ]
-      });
-
       tlite(function(el) {
         return el.classList.contains('has-tooltip') && {grav: 'se'};
+      });
+
+      //nvd3 chart
+      nv.addGraph(function() {
+        var chart = nv.models.multiBarChart()
+          .duration(60) //transition duration after chart changes
+          .reduceXTicks(true)   //If 'false', every single x-axis tick label will be rendered.
+          .rotateLabels(0)      //Angle to rotate x-axis labels.
+          .showControls(false)   //Allow user to switch between 'Grouped' and 'Stacked' mode.
+          .groupSpacing(0.1)    //Distance between each group of bars.
+        ;
+
+        chart.xAxis
+          .tickFormat(function(d) {
+            if(curData[curData.length - 1][5] - curData[0][5] < 24 * 60 * 60) {
+              return d3.time.format('%H:%M')(new Date(d));
+            } else {
+              return d3.time.format('%d-%m-%y')(new Date(d));
+            }
+          })
+          ;
+
+        chart.yAxis
+            .tickFormat(function(v) {
+              return d3.format(',.1f')(v) + 's';
+            });
+
+        chartDataTransformFn = function(req) {
+          return {
+            x: new Date(req[5] * 1000),
+            y: Number(req[6].replace(' seconds', ''))
+          };
+        };
+
+        d3.select('#main-chart svg')
+            .datum([
+              {
+                key: 'Requests with login',
+                values: loginReqs.map(chartDataTransformFn)
+              }, {
+                key: 'Requests without login',
+                values: wloginReqs.map(chartDataTransformFn)
+              }
+            ])
+            .call(chart);
+
+        nv.utils.windowResize(chart.update);
+
+        return chart;
       });
     }
   });
