@@ -9,8 +9,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "http-server . -a localhost -p 8000 -c-1 & npm-watch",
-    "style": "sass style.scss > build/style.css",
-    "build": "mkdir build; npm run style && ./node_modules/inline-source-cli/dist/index.js index.html --compress true > ./build/index.html"
+    "style": "./node_modules/node-sass/bin/node-sass style.scss > build/style.css",
+    "build": "mkdir -p build; npm run style && ./node_modules/inline-source-cli/dist/index.js index.html --compress true > ./build/index.html"
   },
   "author": "bojan@boemskats.com",
   "license": "ISC",
