@@ -49,7 +49,7 @@ def call(settings, afterLogin=False):
         return Response('fail', None, None, str(e)).setId(settings.get('id'))
 
     if req.status_code != 200:
-        return Response('fail', None, None, 'Request failed - status ' + req.status_code).setId(settings.get('id'))
+        return Response('fail', None, None, 'Request failed - status ' + str(req.status_code)).setId(settings.get('id'))
 
     if functions.needToLogin(req.text):
         loginUrl = functions.getLoginUrl(req.text)
