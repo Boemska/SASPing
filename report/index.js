@@ -61,7 +61,8 @@ function updateData(el, period) {
 
   Papa.parse('sasping_data.csv', {
     download: true,
-    error: function(errMsg) {
+    error: function(err) {
+      var errMsg = typeof err === 'string' ? err : (err.message || 'no message');
       alert('Error loading csv data with message: ' + errMsg);
     },
     complete: function(papaParsedObj) {
