@@ -45,14 +45,10 @@ def main():
                 writer.writeheader()
             writer.writerows(testsData)
             if csvFileExists:
-                print('Updated file {0}\n'.format(indexFilePath))
+                print('\nUpdated file {0}\n'.format(csvFilePath))
             else:
-                print('Created file {0}\n'.format(indexFilePath))
+                print('\nCreated file {0}\n'.format(csvFilePath))
 
-            buildStatus = os.system('cd ./report && npm run build')
-            if buildStatus != 0:
-                sys.stderr.write('\nError building index.html. Please try to run "npm run build" from "./reports" manually.\n\n')
-                sys.exit(1)
             copyfile('./report/build/index.html', indexFilePath)
     except IOError as e:
         sys.stderr.write('\n{0}\n\n'.format(str(e)))
