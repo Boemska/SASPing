@@ -37,7 +37,6 @@ def main():
             sys.stderr.write('\nWrong output path. Please check if the dir exists.\n\n')
             sys.exit(1)
         csvFilePath = os.path.join(sys.argv[2], 'sasping_data.csv')
-        indexFilePath = os.path.join(sys.argv[2], 'index.html')
         csvFileExists = os.path.isfile(csvFilePath)
         with open(csvFilePath, "a") as outFile:
             writer = csv.DictWriter(outFile, keys)
@@ -48,8 +47,6 @@ def main():
                 print('\nUpdated file {0}\n'.format(csvFilePath))
             else:
                 print('\nCreated file {0}\n'.format(csvFilePath))
-
-            copyfile('./report/build/index.html', indexFilePath)
     except IOError as e:
         sys.stderr.write('\n{0}\n\n'.format(str(e)))
         sys.exit(1)
