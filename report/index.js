@@ -3,61 +3,14 @@ var fontCol = '#91959e';
 var mainCol = '#faad39';
 var backCol = '#2f2f2f';
 
-function setGauge(el, percent) {
-  var i = 0;
-  var interval = setInterval(function() {
-    try {
-      el.querySelector('.prec').innerHTML = i + '%';
+var timeFormat = d3.time.format("%d/%m/%Y, %H:%M");
 
-      var deg = i * 360 / 100;
-      el.style['background-image'] = 'linear-gradient('+ (deg <= 180 ? deg+90 : deg-90) +'deg, transparent 50%, '+(deg <= 180 ? fontCol : mainCol)+' 50%),linear-gradient(90deg, '+fontCol+' 50%, transparent 50%)';
-
-      if(i++ >= percent) {
-        clearInterval(interval);
-      }
-    } catch(e) {
-      clearInterval(interval);
-      throw e;
-    }
-  }, 10);
-}
+document.addEventListener("DOMContentLoaded", function() {
+  updateData();
+});
 
 function updateData(el, period) {
-  var periodEl = document.querySelector('#time-period');
-  var timeFormat = d3.time.format("%d/%m/%Y, %H:%M");
-  var cur, prev;
-
-  switch(period) {
-    case 'week':
-      cur = new Date();
-      prev = new Date();
-      prev.setDate(cur.getDate() - 7);
-      break;
-    case 'month':
-      cur = new Date();
-      prev = new Date();
-      prev.setMonth(cur.getMonth() - 1);
-      break;
-    case 'all':
-      cur = new Date();
-      prev = new Date();
-      prev.setYear(cur.getYear() - 100);
-      break;
-    default:
-      //day
-      cur = new Date();
-      prev = new Date();
-      prev.setDate(cur.getDate() - 1);
-  }
-  // TODO: change prev to first timestamp if smaller
-  periodEl.innerHTML = timeFormat(prev) + ' - ' + timeFormat(cur);
-
-  if(el) {
-    document.querySelectorAll('.time-btn').forEach(function(btn) {
-      btn.classList.remove('active');
-    });
-    el.classList.add('active');
-  }
+  var timePeriodDates = setTimePeriod(el, period);
 
   Papa.parse('sasping_data.csv', {
     download: true,
@@ -70,7 +23,7 @@ function updateData(el, period) {
       data.shift(); //remove headings
 
       var curData = data.filter(function(el) {
-        return el[5] > prev.getTime()/1000 && el[5] < cur.getTime()/1000;
+        return el[5] > timePeriodDates.prev.getTime()/1000 && el[5] < timePeriodDates.cur.getTime()/1000;
       });
 
       var avgFn = function(prev, cur, ind, arr) {
@@ -142,58 +95,115 @@ function updateData(el, period) {
         return el.classList.contains('has-tooltip') && {grav: 'se'};
       });
 
-      //nvd3 chart
-      nv.addGraph(function() {
-        var chart = nv.models.multiBarChart()
-          .duration(60) //transition duration after chart changes
-          .reduceXTicks(true)   //If 'false', every single x-axis tick label will be rendered.
-          .rotateLabels(0)      //Angle to rotate x-axis labels.
-          .showControls(false)   //Allow user to switch between 'Grouped' and 'Stacked' mode.
-          .groupSpacing(0.1)    //Distance between each group of bars.
-        ;
-
-        chart.xAxis
-          .tickFormat(function(d) {
-            if(curData[curData.length - 1][5] - curData[0][5] < 24 * 60 * 60) {
-              return d3.time.format('%H:%M')(new Date(d));
-            } else {
-              return d3.time.format('%d-%m-%y')(new Date(d));
-            }
-          })
-          ;
-
-        chart.yAxis
-            .tickFormat(function(v) {
-              return d3.format(',.1f')(v) + 's';
-            });
-
-        chartDataTransformFn = function(req) {
-          return {
-            x: new Date(req[5] * 1000),
-            y: Number(req[6].replace(' seconds', ''))
-          };
-        };
-
-        d3.select('#main-chart svg')
-            .datum([
-              {
-                key: 'Requests with login',
-                values: loginReqs.map(chartDataTransformFn)
-              }, {
-                key: 'Requests without login',
-                values: wloginReqs.map(chartDataTransformFn)
-              }
-            ])
-            .call(chart);
-
-        nv.utils.windowResize(chart.update);
-
-        return chart;
-      });
+      drawChart(curData, {login: loginReqs, wlogin: wloginReqs});
     }
   });
 }
 
-document.addEventListener("DOMContentLoaded", function() {
-  updateData();
-});
+function setTimePeriod(el, period) {
+  var periodEl = document.querySelector('#time-period');
+  var cur, prev;
+
+  switch(period) {
+    case 'week':
+      cur = new Date();
+      prev = new Date();
+      prev.setDate(cur.getDate() - 7);
+      break;
+    case 'month':
+      cur = new Date();
+      prev = new Date();
+      prev.setMonth(cur.getMonth() - 1);
+      break;
+    case 'all':
+      cur = new Date();
+      prev = new Date();
+      prev.setYear(cur.getYear() - 100);
+      break;
+    default:
+      //day
+      cur = new Date();
+      prev = new Date();
+      prev.setDate(cur.getDate() - 1);
+  }
+  periodEl.innerHTML = timeFormat(prev) + ' - ' + timeFormat(cur);
+
+  if(el) {
+    document.querySelectorAll('.time-btn').forEach(function(btn) {
+      btn.classList.remove('active');
+    });
+    el.classList.add('active');
+  }
+
+  return {cur: cur, prev: prev};
+}
+
+function drawChart(data, requests) {
+  //nvd3 chart
+  nv.addGraph(function() {
+    var chart = nv.models.multiBarChart()
+      .duration(60) //transition duration after chart changes
+      .reduceXTicks(true)   //If 'false', every single x-axis tick label will be rendered.
+      .rotateLabels(0)      //Angle to rotate x-axis labels.
+      .showControls(false)   //Allow user to switch between 'Grouped' and 'Stacked' mode.
+      .groupSpacing(0.1)    //Distance between each group of bars.
+    ;
+
+    chart.xAxis
+      .tickFormat(function(d) {
+        if(data[data.length - 1][5] - data[0][5] < 24 * 60 * 60) {
+          return d3.time.format('%H:%M')(new Date(d));
+        } else {
+          return d3.time.format('%d-%m-%y')(new Date(d));
+        }
+      })
+      ;
+
+    chart.yAxis
+        .tickFormat(function(v) {
+          return d3.format(',.1f')(v) + 's';
+        });
+
+    chartDataTransformFn = function(req) {
+      return {
+        x: new Date(req[5] * 1000),
+        y: Number(req[6].replace(' seconds', ''))
+      };
+    };
+
+    d3.select('#main-chart svg')
+        .datum([
+          {
+            key: 'Requests with login',
+            values: requests.login.map(chartDataTransformFn)
+          }, {
+            key: 'Requests without login',
+            values: requests.wlogin.map(chartDataTransformFn)
+          }
+        ])
+        .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+}
+
+function setGauge(el, percent) {
+  var i = 0;
+  var interval = setInterval(function() {
+    try {
+      el.querySelector('.prec').innerHTML = i + '%';
+
+      var deg = i * 360 / 100;
+      el.style['background-image'] = 'linear-gradient('+ (deg <= 180 ? deg+90 : deg-90) +'deg, transparent 50%, '+(deg <= 180 ? fontCol : mainCol)+' 50%),linear-gradient(90deg, '+fontCol+' 50%, transparent 50%)';
+
+      if(i++ >= percent) {
+        clearInterval(interval);
+      }
+    } catch(e) {
+      clearInterval(interval);
+      throw e;
+    }
+  }, 10);
+}
