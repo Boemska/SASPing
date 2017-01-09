@@ -3,9 +3,10 @@
 @import './node_modules/blaze/scss/components.cards.scss';
 
 
-$mainCol: #faad39;
-$backCol: #2f2f2f;
-$fontCol: #91959e;
+$mainCol: #7ab648;
+$backCol: #fff;
+$fontCol: #333;
+$gaugeCol: #ddd;
 
 $table-background: darken($backCol, 10%);
 $table-head-background: darken($backCol, 20%);
@@ -59,7 +60,7 @@ body {
   #main-chart svg {
     width: 100%;
     height: 400px;
-    background-color: lighten($backCol, 40%);
+    background-color: darken($backCol, 5%);
   }
 
   #time-nav {
@@ -94,22 +95,16 @@ body {
     }
   }
 
-  #errors-table-row {
-    @include table($nest: true);
-    .c-card__item-padding {
-      padding: .5em 0;
+  #uptime {
+    flex-grow: 0;
+    >div {
+      width: 300px;
     }
-    table {
-      min-width: 100%;
-      tr {
-        td, th {
-          padding: 0 15px;
-        }
-        td {
-          position:relative;
-        }
-      }
-    }
+  }
+
+  #motd {
+    display: flex;
+    align-items: center;
   }
 }
 
@@ -122,8 +117,8 @@ body {
 
   background-color:$mainCol;
   background-image:
-      linear-gradient(91deg, transparent 50%, $fontCol 50%),
-      linear-gradient(90deg, $fontCol 50%, transparent 50%);
+      linear-gradient(91deg, transparent 50%, $gaugeCol 50%),
+      linear-gradient(90deg, $gaugeCol 50%, transparent 50%);
 
   .prec{
     top: 30px;
@@ -154,9 +149,30 @@ body {
 
 .card {
   background-color: lighten($backCol, 2%);
-  box-shadow: 1px 1px 3px rgba(darken($backCol, 20%), 0.6);
+  box-shadow: 1px 1px 5px rgba(darken($backCol, 60%), 0.8);
   margin: 5px;
   padding: 10px;
+}
+
+.led {
+    margin: 20px auto;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.25);
+    box-shadow: #000 0 -1px 6px 1px;
+}
+.led-red {
+    background-color: #F00;
+    box-shadow: #7D7B80 0 -1px 6px 1px, inset #600 0 -1px 8px, #F00 0 3px 11px;
+}
+.led-orange {
+    background-color: #FF7000;
+    box-shadow: #7D7B80 0 -1px 6px 1px, inset #630 0 -1px 8px, #FF7000 0 3px 11px;
+}
+.led-green {
+    background-color: #80FF00;
+    box-shadow: #7D7B80 0 -1px 6px 1px, inset #460 0 -1px 8px, #80FF00 0 3px 11px;
 }
 
 @media (max-width: 1024px) {

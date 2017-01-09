@@ -4,10 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SASPing Report</title>
-    <link inline rel="stylesheet" href="./node_modules/tlite/tlite.css">
     <link inline rel="stylesheet" href="./node_modules/nvd3/build/nv.d3.css">
     <link inline rel="stylesheet" href="build/style.css">
-    <script inline src="./node_modules/tlite/tlite.js" charset="utf-8" type="text/javascript"></script>
     <script inline src="./node_modules/d3/d3.js" charset="utf-8" type="text/javascript"></script>
     <script inline src="./node_modules/nvd3/build/nv.d3.js" charset="utf-8" type="text/javascript"></script>
     <script inline src="./node_modules/papaparse/papaparse.min.js" charset="utf-8" type="text/javascript"></script>
@@ -32,6 +30,24 @@
 
       <div class="row">
         <div class="row-content">
+          <div id="motd" class="card">
+            <p class="center-text">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s</p>
+          </div>
+          <div id="uptime" class="card">
+            <div>
+              <div class="gauge center-table">
+                <div class="circle">
+                  <span class="prec">-</span>
+                </div>
+              </div>
+              <p class="desc center-text">Overall Uptime</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="row-content">
           <div id="main-chart" class="card">
             <svg></svg>
           </div>
@@ -40,74 +56,37 @@
 
       <div class="row">
         <div class="row-content sm-block">
-          <div class="card row-content">
-            <div class="center-vert">
-              <h2 id="total-reqs" class="big-val center-text">-</h2>
-              <p class="desc center-text">Total requests</p>
-            </div>
-            <div id="succ-req">
-              <div class="gauge center-table">
-                <div class="circle">
-                  <span class="prec">-</span>
-                </div>
-              </div>
-              <p class="desc center-text">Successful requests</p>
-            </div>
+          <div class="card">
+            <h2 id="avg-response-time" class="big-val center-text">-</h2>
+            <p class="desc center-text">Average Response Time</p>
           </div>
-          <div class="col">
-            <div class="card row-content">
+          <div class="card">
+            <h2 id="avg-login-time" class="big-val center-text">-</h2>
+            <p class="desc center-text">Average Login Time</p>
+          </div>
+          <div class="card">
+            <h2 id="avg-ping-time" class="big-val center-text">-</h2>
+            <p class="desc center-text">Average Ping Time</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="row-content card">
+          <div class="row">
+            <div class="row-content">
               <div>
-                <h2 id="avg-req-time" class="big-val center-text">-</h2>
-                <p class="desc center-text">Average time</p>
+                <div class="led led-red"></div>
               </div>
               <div>
-                <h2 id="avg-login-req-time" class="big-val center-text">-</h2>
-                <p class="desc center-text">Average time with login</p>
+                <p>Stored Process</p>
               </div>
-              <div>
-                <h2 id="avg-wologin-req-time" class="big-val center-text">-</h2>
-                <p class="desc center-text">Average time w/o login</p>
-              </div>
-            </div>
-            <div class="card row-content">
-              <div>
-                <h2 id="validation-errors" class="big-val center-text">-</h2>
-                <p class="desc center-text">Validation errors</p>
-              </div>
-              <div>
-                <h2 id="req-errors" class="big-val center-text">-</h2>
-                <p class="desc center-text">Request errors</p>
-              </div>
+              <div class="sparkline"></div>
             </div>
           </div>
         </div>
       </div>
 
-      <div id="errors-table-row" class="row">
-        <div class="row-content">
-          <div class="card c-card--accordion">
-            <input type="checkbox" id="accordion-1">
-            <label class="c-card__item" for="accordion-1">Failed requests</label>
-            <div class="c-card__item card__item-padding">
-
-              <!-- <div id="errors-table" class="c-table c-table--striped">
-                <div class="c-table__row c-table__row--heading">
-                  <span class="c-table__cell">Fail reason</span>
-                  <span class="c-table__cell">Issue</span>
-                </div>
-              </div> -->
-              <table class="striped">
-                <thead>
-                  <th>ID</th>
-                  <th>Execution Time</th>
-                  <th>Error</th>
-                </thead>
-                <tbody></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   </body>
 </html>
