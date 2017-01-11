@@ -43,7 +43,7 @@ function updateData(el, period) {
       document.querySelector('#avg-login-time').innerHTML = loginReqs.length === 0 ? '-' : Math.round(loginReqs.map(execTimeFn).reduce(avgFn, 0).toFixed(2) * 1000) + 'ms';
       // document.querySelector('#avg-ping-time').innerHTML = wloginReqs.length === 0 ? '-' : Math.round(wloginReqs.map(execTimeFn).reduce(avgFn, 0).toFixed(2) * 1000) + 'ms';
 
-      drawChart(curData, {login: loginReqs, wlogin: wloginReqs});
+      drawChart({login: loginReqs, wlogin: wloginReqs});
     }
   });
 }
@@ -86,36 +86,42 @@ function setTimePeriod(el, period) {
   return {cur: cur, prev: prev};
 }
 
-function drawChart(data, requests) {
+function drawChart(requests) {
   //nvd3 chart
   nv.addGraph(function() {
     var chart = nv.models.multiBarChart()
       .duration(60) //transition duration after chart changes
       .reduceXTicks(true)   //If 'false', every single x-axis tick label will be rendered.
       .rotateLabels(0)      //Angle to rotate x-axis labels.
-      .showControls(false)   //Allow user to switch between 'Grouped' and 'Stacked' mode.
+      .showControls(true)   //Allow user to switch between 'Grouped' and 'Stacked' mode.
       .groupSpacing(0.1)    //Distance between each group of bars.
     ;
 
-    chart.xAxis
-      .tickFormat(function(d) {
-        if(data[data.length - 1][5] - data[0][5] < 24 * 60 * 60) {
+    if(requests.login.length > 0 && requests.wlogin.length > 0) {
+      var firstRequestTime = requests.login[0][5] < requests.wlogin[0][5] ? requests.login[0][5] : requests.wlogin[0][5];
+      var lastRequestTime = requests.login[requests.login.length-1][5] < requests.wlogin[requests.wlogin.length-1][5] ?
+      requests.login[requests.login.length-1][5] :
+      requests.wlogin[requests.wlogin.length-1][5];
+
+      chart.xAxis.tickFormat(function(d) {
+        if(lastRequestTime - firstRequestTime < 24 * 60 * 60) {
           return d3.time.format('%H:%M')(new Date(d));
         } else {
           return d3.time.format('%d-%m-%y')(new Date(d));
         }
-      })
-      ;
+      });
+    }
 
     chart.yAxis
         .tickFormat(function(v) {
-          return d3.format(',.1f')(v) + 's';
+          return d3.format(',.1f')(v) + 'ms';
         });
 
     chartDataTransformFn = function(req) {
       return {
+        //round up to minute and convert to miliseconds
         x: new Date(req[5] * 1000),
-        y: Number(req[6].replace(' seconds', ''))
+        y: Number(req[6].replace(' seconds', '') * 1000)
       };
     };
 

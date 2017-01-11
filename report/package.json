@@ -9,8 +9,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "http-server . -a localhost -p 8000 -c-1 & npm-watch",
-    "style": "./node_modules/node-sass/bin/node-sass style.scss > build/style.css",
-    "build": "mkdir -p build; npm run style && ./node_modules/inline-source-cli/dist/index.js index.html --compress true > ./build/index.html"
+    "style": "./node_modules/node-sass/bin/node-sass app/style.scss > build/style.css",
+    "build": "mkdir -p dist/js dist/css build; npm run style && ./node_modules/usemin-cli/bin/usemin app/index.html -d dist -o dist/index.html"
   },
   "author": "bojan@boemskats.com",
   "license": "ISC",
@@ -18,11 +18,11 @@
     "blaze": "^3.2.0",
     "d3": "^3.5.17",
     "foundation-sites": "^6.3.0",
-    "inline-source-cli": "^1.1.1",
     "node-sass": "^4.1.1",
     "npm-watch": "^0.1.7",
     "nvd3": "^1.8.5",
     "papaparse": "^4.1.2",
-    "sass": "^0.5.0"
+    "sass": "^0.5.0",
+    "usemin-cli": "^0.2.0"
   }
 }
