@@ -1,19 +1,4 @@
-import operator
-
-class Settings:
-    _keys = [
-        # key, required
-        ('id', True),
-        ('type', True),
-        ('execUrl', True),
-        ('loginUrl', False),
-        ('execParams', False),
-        ('loginParams', True),
-        ('loginParams.username', True),
-        ('loginParams.password', True),
-        ('validations', False)
-    ]
-
+class Base(object):
     def __init__(self, d):
         for key in d:
             self._validateKey(key)

@@ -5,62 +5,75 @@ import re
 import time
 
 # local imports
-from settings import Settings
+from config.settings import Settings
+from config.test import Test
 from response import Response
 import functions
 
 _session = requests.Session()
+_settings = None
 
-def run(testConfigObjects):
+def run(config):
+    global _settings
+    _settings = Settings(config)
+    if not(login()):
+        raise RuntimeError('Failed to login.')
+    applications = _settings.get('applications')
     testsData = []
-    for settings in [Settings(testConfig) for testConfig in testConfigObjects]:
-        startTime = time.time()
-        response = call(settings)
-        response.addTime(startTime, str(round(time.time() - startTime, 3)) + ' seconds')
-        testsData.append(dict(response))
+    for app in applications:
+        for test in [Test(testConfig) for testConfig in app['tests']]:
+            startTime = time.time()
+            response = call(test)
+            response.setTime(startTime, str(round(time.time() - startTime, 3)) + ' seconds')
+            response.setAppName(app['name'])
+            testsData.append(dict(response))
 
     return testsData
 
-def _login(loginUrl, hiddenParams, settings):
+def login():
+    req = _session.get(_settings.getLoginUrl())
+    hiddenParams = functions.getHiddenParams(req.text)
+    return _login(hiddenParams)
+
+def _login(hiddenParams):
     params = {
         '_service': 'default',
-        'ux': settings.get('loginParams.username'),
-        'px': settings.get('loginParams.password'),
+        'ux': _settings.get('loginParams.username'),
+        'px': _settings.get('loginParams.password'),
         # for SAS 9.4,
-        'username': settings.get('loginParams.username'),
-        'password': settings.get('loginParams.password')
+        'username': _settings.get('loginParams.username'),
+        'password': _settings.get('loginParams.password')
     }
     params.update(hiddenParams)
 
     try:
-        req = _session.post(functions.getHostUrl(settings.get('execUrl')) + loginUrl, params, timeout=30)
+        req = _session.post(_settings.getLoginUrl(), params, timeout=30)
         return req.status_code == 200 and not(functions.needToLogin(req.text))
-    except requests.exceptions.Timeout:
+    except:
         return False
 
-def call(settings, afterLogin=False):
+def call(test, afterLogin=False):
     try:
-        req = _session.post(settings.get('execUrl'), settings.get('execParams'), timeout=30)
+        req = _session.post(_settings.get('hostUrl') + test.get('execPath'), test.get('execParams'), timeout=30)
     except requests.exceptions.Timeout:
-        return Response('fail', None, None,'Request timeout').setId(settings.get('id'))
+        return Response('fail', None, None,'Request timeout').setId(test.get('id'))
     except requests.exceptions.ConnectionError:
-        return Response('fail', None, None,'Name or service not known').setId(settings.get('id'))
+        return Response('fail', None, None,'Name or service not known').setId(test.get('id'))
     except requests.exceptions.RequestException as e:
-        return Response('fail', None, None, str(e)).setId(settings.get('id'))
+        return Response('fail', None, None, str(e)).setId(test.get('id'))
 
     if req.status_code != 200:
-        return Response('fail', None, None, 'Request failed - status ' + str(req.status_code)).setId(settings.get('id'))
+        return Response('fail', None, None, 'Request failed - status ' + str(req.status_code)).setId(test.get('id'))
 
     if functions.needToLogin(req.text):
-        loginUrl = functions.getLoginUrl(req.text)
         hiddenParams = functions.getHiddenParams(req.text)
-        if _login(loginUrl, hiddenParams, settings):
-            return call(settings, True)
+        if _login(loginUrl, hiddenParams):
+            return call(test, True)
         else:
-            return Response('fail', None, None,'Failed login').setId(settings.get('id'))
+            return Response('fail', None, None,'Failed login').setId(test.get('id'))
     else:
         # (0|1,) - true or false for "had to login" in csv
-        response = functions.validateResponse(req.text, settings.get('validations'))
+        response = functions.validateResponse(req.text, test.get('validations'))
         if afterLogin:
             response.setHadToLoginFlag()
-        return response.setId(settings.get('id'))
+        return response.setId(test.get('id'))
