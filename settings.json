@@ -1,14 +1,25 @@
-[{
-  "id": "id",
-  "type": "stored_process",
-  "execUrl": "https://example.com/path",
-  "loginUrl": "",
-  "execParams": {
-    "_program": "/program/path"
-  },
+{
+  "hostUrl": "https://example.com/",
+  "loginPath": "/SASLogon/login",
   "loginParams": {
-    "username": "username",
-    "password": "password"
+    "username": "user",
+    "password": "pass"
   },
-  "validations": {"mustContain": [], "cantContain": []}
-}]
+  "applications": [{
+    "name": "Stored Process Web Application",
+    "tests": [{
+      "id": "id",
+      "type": "stored_process",
+      "execUrl": "/path",
+      "loginUrl": "",
+      "execParams": {
+        "_program": "/program/path"
+      },
+      "loginParams": {
+        "username": "username",
+        "password": "password"
+      },
+      "validations": {"mustContain": [], "cantContain": []}
+    }]
+  }]
+}
