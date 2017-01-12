@@ -1,11 +1,13 @@
 
 class Response:
-    def __init__(self, status, failedTestGroup=None, failedPatt=None, message=None, hadToLogin=False, appName=False):
-        self.id              = None
+    def __init__(self, id, status, failedTestGroup=None, failedPatt=None, message=None, timestamp=None, execTime=None, hadToLogin=False, appName=False):
+        self.id              = id
         self.status          = status
         self.failedTestGroup = failedTestGroup
         self.failedPatt      = failedPatt
         self.message         = message
+        self.timestamp       = timestamp
+        self.execTime        = execTime
         self.hadToLogin      = hadToLogin
         self.appName         = appName
 
@@ -35,4 +37,4 @@ class Response:
         yield 'timestamp', self.timestamp
         yield 'execution time', self.execTime
         yield 'had to login', 1 if self.hadToLogin else 0,
-        yield 'application name', self.appName
+        yield 'application name', self.appName or ''

@@ -15,20 +15,25 @@ _settings = None
 
 def run(config):
     global _settings
+    outData = []
     _settings = Settings(config)
-    if not(login()):
+    startTime = time.time()
+    loginStatus = login()
+    loginTime = round(time.time() - startTime, 3)
+    if not(loginStatus):
         raise RuntimeError('Failed to login.')
+    loginResponse = Response('sasping login request', 'success', timestamp=time.time(), execTime=(str(loginTime) + ' seconds'))
+    outData.append(dict(loginResponse))
     applications = _settings.get('applications')
-    testsData = []
     for app in applications:
         for test in [Test(testConfig) for testConfig in app['tests']]:
             startTime = time.time()
             response = call(test)
             response.setTime(startTime, str(round(time.time() - startTime, 3)) + ' seconds')
             response.setAppName(app['name'])
-            testsData.append(dict(response))
+            outData.append(dict(response))
 
-    return testsData
+    return outData
 
 def login():
     req = _session.get(_settings.getLoginUrl())
@@ -56,24 +61,24 @@ def call(test, afterLogin=False):
     try:
         req = _session.post(_settings.get('hostUrl') + test.get('execPath'), test.get('execParams'), timeout=30)
     except requests.exceptions.Timeout:
-        return Response('fail', None, None,'Request timeout').setId(test.get('id'))
+        return Response(test.get('id'), 'fail', message='Request timeout')
     except requests.exceptions.ConnectionError:
-        return Response('fail', None, None,'Name or service not known').setId(test.get('id'))
+        return Response(test.get('id'), 'fail', message='Name or service not known')
     except requests.exceptions.RequestException as e:
-        return Response('fail', None, None, str(e)).setId(test.get('id'))
+        return Response(test.get('id'), 'fail', message=str(e))
 
     if req.status_code != 200:
-        return Response('fail', None, None, 'Request failed - status ' + str(req.status_code)).setId(test.get('id'))
+        return Response(test.get('id'), 'fail', message='Request failed - status ' + str(req.status_code))
 
     if functions.needToLogin(req.text):
         hiddenParams = functions.getHiddenParams(req.text)
         if _login(loginUrl, hiddenParams):
             return call(test, True)
         else:
-            return Response('fail', None, None,'Failed login').setId(test.get('id'))
+            return Response(test.get('id'), 'fail', message='Failed login')
     else:
         # (0|1,) - true or false for "had to login" in csv
-        response = functions.validateResponse(req.text, test.get('validations'))
+        response = functions.validateResponse(req.text, test.get('id'), test.get('validations'))
         if afterLogin:
             response.setHadToLoginFlag()
-        return response.setId(test.get('id'))
+        return response
