@@ -8,6 +8,7 @@ import re
 from shutil import copyfile
 
 import sas
+from sas.response import Response
 
 def main():
     #python main.py [settings.json path]
@@ -32,7 +33,7 @@ def main():
         sys.exit(1)
 
     try:
-        keys = ['id', 'status', 'failed test group', 'failed pattern', 'message', 'timestamp', 'execution time', 'had to login', 'application name']
+        keys = Response.getKeys()
         if not(os.path.isdir(sys.argv[2])):
             sys.stderr.write('\nWrong output path. Please check if the dir exists.\n\n')
             sys.exit(1)

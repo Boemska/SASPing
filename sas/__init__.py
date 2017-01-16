@@ -15,6 +15,7 @@ _settings = None
 
 def run(config):
     global _settings
+    programExecTime = time.time()
     outData = []
     _settings = Settings(config)
     try:
@@ -29,9 +30,9 @@ def run(config):
     except Exception as err:
         loginResponse = Response('sasping login request', 'fail', message=str(err))
     finally:
-        loginResponse.setTime(startTime, round(time.time() - startTime, 3))
+        loginResponse.setTime(startTime, str(round(time.time() - startTime, 3)) + ' seconds')
 
-    outData.append(dict(loginResponse))
+    outData.append(dict(loginResponse.setProgramExecTime(programExecTime)))
     applications = _settings.get('applications')
     for app in applications:
         for test in [Test(testConfig) for testConfig in app['tests']]:
@@ -47,7 +48,7 @@ def run(config):
             finally:
                 response.setTime(startTime, str(round(time.time() - startTime, 3)) + ' seconds')
                 response.setAppName(app['name'])
-                outData.append(dict(response))
+                outData.append(dict(response.setProgramExecTime(programExecTime)))
 
     return outData
 

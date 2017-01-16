@@ -10,6 +10,7 @@ class Response:
         self.execTime        = execTime
         self.hadToLogin      = hadToLogin
         self.appName         = appName
+        self.programExecTime = None
 
     def setTime(self, timestamp, execTime):
         self.timestamp = timestamp
@@ -28,6 +29,25 @@ class Response:
         self.appName = appName;
         return self
 
+    def setProgramExecTime(self, time):
+        self.programExecTime = time;
+        return self
+
+    @staticmethod
+    def getKeys():
+        return [
+            'id',
+            'status',
+            'failed test group',
+            'failed pattern',
+            'message',
+            'timestamp',
+            'execution time',
+            'had to login',
+            'application name',
+            'program exec time'
+        ]
+
     def __iter__(self):
         yield 'id', self.id
         yield 'status', self.status
@@ -38,3 +58,4 @@ class Response:
         yield 'execution time', self.execTime
         yield 'had to login', 1 if self.hadToLogin else 0,
         yield 'application name', self.appName or ''
+        yield 'program exec time', self.programExecTime
