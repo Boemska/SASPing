@@ -3,78 +3,45 @@ var mainCol = '#7ab648';
 var gaugeCol = '#ddd';
 
 var timeFormat = d3.time.format("%d/%m/%Y, %H:%M");
+var period = 'day';
+var worker;
 
-document.addEventListener("DOMContentLoaded", function() {
-  updateData();
-});
-
-function updateData(el, period) {
-  var timePeriodDates = setTimePeriod(el, period);
-
-  Papa.parse('sasping_data.csv', {
-    download: true,
-    error: function(err) {
-      var errMsg = typeof err === 'string' ? err : (err.message || 'no message');
-      alert('Error loading csv data with message: ' + errMsg);
-    },
-    complete: function(papaParsedObj) {
-      var data = papaParsedObj.data;
-      data.shift(); //remove headings
-
-      var curData = data.filter(function(el) {
-        return el[5] > timePeriodDates.prev.getTime()/1000 && el[5] < timePeriodDates.cur.getTime()/1000;
-      });
-
-      var avgFn = function(prev, cur, ind, arr) {
-        return prev + cur/arr.length;
-      };
-      var execTimeFn = function(req) {
-        return Number(req[6].replace(' seconds', ''));
-      };
-
-      var loginReqs = curData.filter(function(req) {
-        return req[7] === '1'; //had to login = true
-      });
-      var wloginReqs = curData.filter(function(req) {
-        return req[7] === '0'; //had to login = false
-      });
-
-      document.querySelector('#avg-response-time').innerHTML = curData.length === 0 ? '-' : Math.round(curData.map(execTimeFn).reduce(avgFn, 0).toFixed(2) * 1000) + 'ms';
-      document.querySelector('#avg-login-time').innerHTML = loginReqs.length === 0 ? '-' : Math.round(loginReqs.map(execTimeFn).reduce(avgFn, 0).toFixed(2) * 1000) + 'ms';
-      // document.querySelector('#avg-ping-time').innerHTML = wloginReqs.length === 0 ? '-' : Math.round(wloginReqs.map(execTimeFn).reduce(avgFn, 0).toFixed(2) * 1000) + 'ms';
-
-      drawChart({login: loginReqs, wlogin: wloginReqs});
-    }
-  });
+var MyWorker = require('worker-loader!./worker.js');
+try {
+  // worker = new Worker('js/worker.js');
+  worker = new MyWorker();
+} catch(e) {
+  if(e instanceof ReferenceError) {
+    alert('Your browser does not support web workers.');
+  }
+  throw e;
 }
 
-function setTimePeriod(el, period) {
-  var periodEl = document.querySelector('#time-period');
-  var cur, prev;
-
-  switch(period) {
-    case 'week':
-      cur = new Date();
-      prev = new Date();
-      prev.setDate(cur.getDate() - 7);
+worker.onmessage = function(evt) {
+  switch(evt.data.action) {
+    case 'error':
+      alert(evt.data.msg);
       break;
-    case 'month':
-      cur = new Date();
-      prev = new Date();
-      prev.setMonth(cur.getMonth() - 1);
+    case 'update':
+      updateData(evt.data.data);
+      getDataInterval = null;
       break;
-    case 'all':
-      cur = new Date();
-      prev = new Date();
-      prev.setYear(cur.getYear() - 100);
-      break;
-    default:
-      //day
-      cur = new Date();
-      prev = new Date();
-      prev.setDate(cur.getDate() - 1);
   }
-  periodEl.innerHTML = timeFormat(prev) + ' - ' + timeFormat(cur);
+};
+
+document.addEventListener("DOMContentLoaded", function() {
+  worker.postMessage({action: 'domReady'});
+
+  document.querySelectorAll('#time-btns > h3').forEach(function(el) {
+    el.addEventListener('click', function(evt) {
+      setPeriod(el, el.dataset.period);
+    });
+  });
+});
+
+//dom onclick event handler
+function setPeriod(el, period) {
+  period = period;
 
   if(el) {
     document.querySelectorAll('.time-btn').forEach(function(btn) {
@@ -83,28 +50,47 @@ function setTimePeriod(el, period) {
     el.classList.add('active');
   }
 
-  return {cur: cur, prev: prev};
+  worker.postMessage({
+    action: 'getData',
+    period: period
+  });
 }
 
-function drawChart(requests) {
+
+function updateData(data) {
+  console.log(data);
+  if(data.uptime !== null) {
+    setGauge(document.querySelector('#uptime .gauge'), data.uptime * 100);
+  }
+  if(data.avgResponse !== null) {
+    document.querySelector('#avg-response-time').innerHTML = data.avgResponse + 'ms';
+  }
+  if(data.avgLogin !== null) {
+    document.querySelector('#avg-login-time').innerHTML = data.avgLogin + 'ms';
+  }
+  if(data.iqr !== null) {
+    document.querySelector('#iqr-time').innerHTML = data.iqr + 'ms';
+  }
+
+  drawChart(data.chartData);
+}
+
+function drawChart(chartData) {
   //nvd3 chart
   nv.addGraph(function() {
-    var chart = nv.models.multiBarChart()
-      .duration(60) //transition duration after chart changes
-      .reduceXTicks(true)   //If 'false', every single x-axis tick label will be rendered.
-      .rotateLabels(0)      //Angle to rotate x-axis labels.
-      .showControls(true)   //Allow user to switch between 'Grouped' and 'Stacked' mode.
-      .groupSpacing(0.1)    //Distance between each group of bars.
-    ;
+    var chart = nv.models.stackedAreaChart()
+      .duration(60)
+      .x(function(d) { return d[0]; })
+      .y(function(d) { return d[1]; })
+      .useInteractiveGuideline(true)
+      .showControls(true)
+      .clipEdge(true);
 
-    if(requests.login.length > 0 && requests.wlogin.length > 0) {
-      var firstRequestTime = requests.login[0][5] < requests.wlogin[0][5] ? requests.login[0][5] : requests.wlogin[0][5];
-      var lastRequestTime = requests.login[requests.login.length-1][5] < requests.wlogin[requests.wlogin.length-1][5] ?
-      requests.login[requests.login.length-1][5] :
-      requests.wlogin[requests.wlogin.length-1][5];
+    if(chartData.login.length > 0 && chartData.call.length > 0) {
+      var firstRequestTime = chartData.login[0][0];
 
       chart.xAxis.tickFormat(function(d) {
-        if(lastRequestTime - firstRequestTime < 24 * 60 * 60) {
+        if(Date.now() - firstRequestTime < 24 * 60 * 60 * 1000) {
           return d3.time.format('%H:%M')(new Date(d));
         } else {
           return d3.time.format('%d-%m-%y')(new Date(d));
@@ -117,24 +103,14 @@ function drawChart(requests) {
           return d3.format(',.1f')(v) + 'ms';
         });
 
-    chartDataTransformFn = function(req) {
-      return {
-        //round up to minute and convert to miliseconds
-        x: new Date(req[5] * 1000),
-        y: Number(req[6].replace(' seconds', '') * 1000)
-      };
-    };
-
     d3.select('#main-chart svg')
-        .datum([
-          {
-            key: 'Requests with login',
-            values: requests.login.map(chartDataTransformFn)
+        .datum([{
+            key: 'Call requests',
+            values: chartData.call
           }, {
-            key: 'Requests without login',
-            values: requests.wlogin.map(chartDataTransformFn)
-          }
-        ])
+            key: 'Login requests',
+            values: chartData.login
+        }])
         .call(chart);
 
     nv.utils.windowResize(chart.update);

@@ -8,13 +8,6 @@ $backCol: #fff;
 $fontCol: #333;
 $gaugeCol: #ddd;
 
-$table-background: darken($backCol, 10%);
-$table-head-background: darken($backCol, 20%);
-$table-head-font-color: $fontCol;
-@import './node_modules/foundation-sites/scss/_global.scss';
-@import './node_modules/foundation-sites/scss/util/_util.scss';
-@import './node_modules/foundation-sites/scss/components/_table.scss';
-
 body {
   padding: 20px;
   background-color: $backCol;

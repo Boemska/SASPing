@@ -1,0 +1,11 @@
+id,status,failed test group,failed pattern,message,timestamp,execution time,had to login,application name,program exec time
+sasping login request,success,,,,1484556312.255509,0.379 seconds,0,,1484556312.255447
+1,fail,cantContain,<title>(Stored Process Error|SASStoredProcess)</title>[\s\S]*<h2>.*not a valid stored process path.</h2>,,1484556312.634572,1.15 seconds,0,Stored Process Web Application,1484556312.255447
+test 2,fail,mustContain,"""usermessage"" : ""blank""",,1484556313.784456,0.064 seconds,0,Stored Process Web Application,1484556312.255447
+bad url test,fail,,,Request failed - status 404,1484556313.848707,0.057 seconds,0,Stored Process Web Application,1484556312.255447
+successful request,success,,,,1484556313.905768,0.814 seconds,0,Stored Process Web Application,1484556312.255447
+sasping login request,success,,,,1484556444.443837,0.385 seconds,0,,1484556444.443773
+1,fail,cantContain,<title>(Stored Process Error|SASStoredProcess)</title>[\s\S]*<h2>.*not a valid stored process path.</h2>,,1484556444.82895,1.363 seconds,0,Stored Process Web Application,1484556444.443773
+test 2,fail,mustContain,"""usermessage"" : ""blank""",,1484556446.191778,0.064 seconds,0,Stored Process Web Application,1484556444.443773
+bad url test,fail,,,Request failed - status 404,1484556446.256018,0.057 seconds,0,Stored Process Web Application,1484556444.443773
+successful request,success,,,,1484556446.312717,0.768 seconds,0,Stored Process Web Application,1484556444.443773

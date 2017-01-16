@@ -8,12 +8,8 @@
     <link rel="stylesheet" href="../node_modules/nvd3/build/nv.d3.css">
     <link rel="stylesheet" href="../build/style.css">
     <!-- endbuild -->
-    <!-- build:js js/app-min.js -->
-    <script src="../node_modules/d3/d3.js" charset="utf-8" type="text/javascript"></script>
-    <script src="../node_modules/nvd3/build/nv.d3.js" charset="utf-8" type="text/javascript"></script>
-    <script src="../node_modules/papaparse/papaparse.min.js" charset="utf-8" type="text/javascript"></script>
+    <script src="js/vendors.js" charset="utf-8" type="text/javascript"></script>
     <script src="js/index.js" charset="utf-8" type="text/javascript"></script>
-    <!-- endbuild -->
   </head>
   <body>
     <div id="content">
@@ -21,13 +17,12 @@
         <div id="time-nav" class="row-content sm-block">
           <div>
             <h1 class="c-heading">SASPing Activity</h1>
-            <p id="time-period" class="desc">date</p>
           </div>
           <div id="time-btns">
-            <h3 onclick="updateData(this, 'all')" class="c-heading time-btn">All Time</h3>
-            <h3 onclick="updateData(this, 'month')" class="c-heading time-btn">Last Month</h3>
-            <h3 onclick="updateData(this, 'week')" class="c-heading time-btn">Last Week</h3>
-            <h3 onclick="updateData(this, 'day')" class="c-heading time-btn active">Today</h3>
+            <h3 data-period="all" class="c-heading time-btn">All Time</h3>
+            <h3 data-period="month" class="c-heading time-btn">Last Month</h3>
+            <h3 data-period="week" class="c-heading time-btn">Last Week</h3>
+            <h3 data-period="day" class="c-heading time-btn active">Today</h3>
           </div>
         </div>
       </div>
@@ -69,8 +64,8 @@
             <p class="desc center-text">Average Login Time</p>
           </div>
           <div class="card">
-            <h2 id="avg-ping-time" class="big-val center-text">-</h2>
-            <p class="desc center-text">Average Ping Time</p>
+            <h2 id="iqr-time" class="big-val center-text">-</h2>
+            <p class="desc center-text">IQR Time</p>
           </div>
         </div>
       </div>
