@@ -48,6 +48,7 @@ self.data = {
 };
 var dataReady = false;
 var pendingSend = false;
+var initialDataSent = false;
 
 Papa.parse('../sasping_data.csv', {
   download: true,
@@ -69,7 +70,6 @@ onmessage = function(evt) {
       // no break - we want it to go to the next case
     case 'getData':
       //not sending the message if there are requests in queue
-      if(pendingSend) break;
       if(dataReady) {
         postMessage({
           action: 'update',
@@ -77,16 +77,6 @@ onmessage = function(evt) {
         });
       } else {
         pendingSend = true;
-        var interval = setInterval(function() {
-          if(dataReady) {
-            postMessage({
-              action: 'update',
-              data: self.data[evt.data.period || 'day']
-            });
-            clearInterval(interval);
-            pendingSend = false;
-          }
-        }, 100);
       }
       break;
   }
@@ -188,19 +178,25 @@ function processData(data) {
       self.data[period].chartData.call[i][1] = avg(self.data[period].chartData.call[i][1]);
     }
     self.data[period].iqr = iqr(iqrData);
-  }
 
-  for(period in self.data) {
-    if(count.total[period] === 0) continue;
-    self.data[period].uptime = (count.total[period] - count.failed[period]) / count.total[period];
-    if(count.call[period]) {
-      self.data[period].avgResponse = Math.round(time.call[period] / count.call[period]);
+    if(count.total[period] !== 0) {
+      self.data[period].uptime = (count.total[period] - count.failed[period]) / count.total[period];
+      if(count.call[period]) {
+        self.data[period].avgResponse = Math.round(time.call[period] / count.call[period]);
+      }
+      if(count.login[period]) {
+        self.data[period].avgLogin = Math.round(time.login[period] / count.login[period]);
+      }
     }
-    if(count.login[period]) {
-      self.data[period].avgLogin = Math.round(time.login[period] / count.login[period]);
+    
+    if(!initialDataSent && pendingSend && period === 'day') {
+      postMessage({
+        action: 'update',
+        data: self.data.day
+      });
+      initialDataSent = true;
     }
   }
-
   dataReady = true;
 }
 

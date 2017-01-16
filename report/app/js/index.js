@@ -8,7 +8,6 @@ var worker;
 
 var MyWorker = require('worker-loader!./worker.js');
 try {
-  // worker = new Worker('js/worker.js');
   worker = new MyWorker();
 } catch(e) {
   if(e instanceof ReferenceError) {
