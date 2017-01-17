@@ -111,6 +111,9 @@ body {
           &:nth-child(2) {
             min-width: 250px;
           }
+          svg {
+            overflow: visible;
+          }
         }
       }
     }

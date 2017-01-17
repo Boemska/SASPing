@@ -6,7 +6,7 @@ self.data = {
     avgResponse: null,
     avgLogin: null,
     iqr: null,
-    raw: [],
+    apps: {},
     chartData: {
       login: [],
       call: []
@@ -17,7 +17,7 @@ self.data = {
     avgResponse: null,
     avgLogin: null,
     iqr: null,
-    raw: [],
+    apps: {},
     chartData: {
       login: [],
       call: []
@@ -28,7 +28,7 @@ self.data = {
     avgResponse: null,
     avgLogin: null,
     iqr: null,
-    raw: [],
+    apps: {},
     chartData: {
       login: [],
       call: []
@@ -39,7 +39,7 @@ self.data = {
     avgResponse: null,
     avgLogin: null,
     iqr: null,
-    raw: [],
+    apps: {},
     chartData: {
       login: [],
       call: []
@@ -142,7 +142,7 @@ function processData(data) {
     iqrData = [];
     for(i = 0; i < data.length; i++) {
       if(data[i].length < 9) continue; //empty or not complete row - may be the last one
-      if(data[i][5] * 1000 < timestamps[period]) continue;
+      if(data[i][5] * 1000 < timestamps[period]) continue; //not in period/timespan
 
       count.total[period]++;
       if(data[i][1] === 'fail') count.failed[period]++;
@@ -171,6 +171,13 @@ function processData(data) {
         } else {
           lastExecCallData[1].push(execDuration);
         }
+
+        //add to apps
+        if(self.data[period].apps[data[i][8]] === undefined) {
+          self.data[period].apps[data[i][8]] = [[execTime, execDuration]];
+        } else {
+          self.data[period].apps[data[i][8]].push([execTime, execDuration]);
+        }
       }
       iqrData.push(execDuration);
     }
@@ -188,7 +195,7 @@ function processData(data) {
         self.data[period].avgLogin = Math.round(time.login[period] / count.login[period]);
       }
     }
-    
+
     if(!initialDataSent && pendingSend && period === 'day') {
       postMessage({
         action: 'update',

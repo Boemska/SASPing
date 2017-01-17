@@ -59,25 +59,33 @@ function setPeriod(el, period) {
 
 
 function updateData(data) {
-  if(data.uptime !== null) {
+  if(data.uptime !== null && !isNaN(data.uptime)) {
     setGauge(document.querySelector('#uptime .gauge'), data.uptime * 100);
+  } else {
+    setGauge(document.querySelector('#uptime .gauge'), null);
   }
-  if(data.avgResponse !== null) {
-    document.querySelector('#avg-response-time').innerHTML = data.avgResponse + 'ms';
+  if(data.avgResponse !== null && !isNaN(data.avgResponse)) {
+    document.querySelector('#avg-response-time').innerHTML = data.avgResponse + ' ms';
+  } else {
+    document.querySelector('#avg-response-time').innerHTML = '-';
   }
-  if(data.avgLogin !== null) {
-    document.querySelector('#avg-login-time').innerHTML = data.avgLogin + 'ms';
+  if(data.avgLogin !== null && !isNaN(data.avgLogin)) {
+    document.querySelector('#avg-login-time').innerHTML = data.avgLogin + ' ms';
+  } else {
+    document.querySelector('#avg-login-time').innerHTML = '-';
   }
-  if(data.iqr !== null) {
-    document.querySelector('#iqr-time').innerHTML = data.iqr + 'ms';
+  if(data.iqr !== null && !isNaN(data.iqr)) {
+    document.querySelector('#iqr-time').innerHTML = data.iqr + ' ms';
+  } else {
+    document.querySelector('#iqr-time').innerHTML = '-';
   }
 
   drawChart(data.chartData);
 
-  var appTableEl = document.querySelector('#app-table');
-  appTableEl.innerHTML = '';
-  appRow('green', 'Stored process');
-  appRow('red', 'Stored process 2');
+  document.querySelector('#app-table').innerHTML = '';
+  for(var key in data.apps) {
+    appRow('green', key, data.apps[key]);
+  }
 }
 
 function drawChart(chartData) {
@@ -105,7 +113,7 @@ function drawChart(chartData) {
 
     chart.yAxis
         .tickFormat(function(v) {
-          return d3.format(',.1f')(v) + 'ms';
+          return d3.format(',.1f')(v) + ' ms';
         });
 
     d3.select('#main-chart svg')
@@ -128,13 +136,17 @@ function setGauge(el, percent) {
   var i = 0;
   var interval = setInterval(function() {
     try {
-      el.querySelector('.prec').innerHTML = i + '%';
-
-      var deg = i * 360 / 100;
-      el.style['background-image'] = 'linear-gradient('+ (deg <= 180 ? deg+90 : deg-90) +'deg, transparent 50%, '+(deg <= 180 ? gaugeCol : mainCol)+' 50%),linear-gradient(90deg, '+gaugeCol+' 50%, transparent 50%)';
-
-      if(i++ >= percent) {
+      if(percent !== null) {
+        el.querySelector('.prec').innerHTML = i + '%';
+        var deg = i * 360 / 100;
+        el.style['background-image'] = 'linear-gradient('+ (deg <= 180 ? deg+90 : deg-90) +'deg, transparent 50%, '+(deg <= 180 ? gaugeCol : mainCol)+' 50%),linear-gradient(90deg, '+gaugeCol+' 50%, transparent 50%)';
+        if(i++ >= percent) {
+          clearInterval(interval);
+        }
+      } else {
         clearInterval(interval);
+        el.querySelector('.prec').innerHTML = '-';
+        el.style['background-image'] = 'linear-gradient(90deg, transparent 50%, '+gaugeCol+' 50%),linear-gradient(90deg, '+gaugeCol+' 50%, transparent 50%)';
       }
     } catch(e) {
       clearInterval(interval);
