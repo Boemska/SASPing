@@ -6,6 +6,8 @@ var timeFormat = d3.time.format("%d/%m/%Y, %H:%M");
 var period = 'day';
 var worker;
 
+var appRow = require('./appRow.js');
+
 var MyWorker = require('worker-loader!./worker.js');
 try {
   worker = new MyWorker();
@@ -57,7 +59,6 @@ function setPeriod(el, period) {
 
 
 function updateData(data) {
-  console.log(data);
   if(data.uptime !== null) {
     setGauge(document.querySelector('#uptime .gauge'), data.uptime * 100);
   }
@@ -72,6 +73,11 @@ function updateData(data) {
   }
 
   drawChart(data.chartData);
+
+  var appTableEl = document.querySelector('#app-table');
+  appTableEl.innerHTML = '';
+  appRow('green', 'Stored process');
+  appRow('red', 'Stored process 2');
 }
 
 function drawChart(chartData) {
