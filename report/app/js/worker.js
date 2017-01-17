@@ -213,7 +213,7 @@ function processData(data) {
     self.data[period].iqr = iqr(iqrData);
 
     if(count.total[period] !== 0) {
-      self.data[period].uptime = (count.total[period] - count.failed[period]) / count.total[period];
+      self.data[period].uptime = ((count.total[period] - count.failed[period]) / count.total[period]).toFixed(2);
       if(count.call[period]) {
         self.data[period].avgResponse = Math.round(time.call[period] / count.call[period]);
       }
