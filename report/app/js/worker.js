@@ -84,6 +84,7 @@ onmessage = function(evt) {
 
 function processData(data) {
   data.shift(); //remove headings
+  if(data[data.length - 1].length === 1) data.pop(); //remove last row if it's empty
 
   var now = new Date();
 
@@ -137,11 +138,13 @@ function processData(data) {
   };
 
   var i, period, execTime, execDuration, iqrData;
+  var failedCheckFn = function(status) {
+    return status === 'fail';
+  };
 
   for(period in self.data) {
     iqrData = [];
     for(i = 0; i < data.length; i++) {
-      if(data[i].length < 9) continue; //empty or not complete row - may be the last one
       if(data[i][5] * 1000 < timestamps[period]) continue; //not in period/timespan
 
       count.total[period]++;
@@ -174,13 +177,36 @@ function processData(data) {
 
         //add to apps
         if(self.data[period].apps[data[i][8]] === undefined) {
-          self.data[period].apps[data[i][8]] = [[execTime, execDuration]];
+          self.data[period].apps[data[i][8]] = {
+            data: [[Math.round(data[i][5] * 1000), execDuration]]
+          };
         } else {
-          self.data[period].apps[data[i][8]].push([execTime, execDuration]);
+          self.data[period].apps[data[i][8]].data.push([Math.round(data[i][5] * 1000), execDuration]);
         }
       }
       iqrData.push(execDuration);
     }
+
+    //set app health status
+    for(var appName in self.data[period].apps) {
+      i = data.length - 1;
+      var lastExecTime = data[i][9];
+      var lastExecStatuses = [];
+      while(lastExecTime === data[i][9]) {
+        if(appName === data[i][8]) {
+          lastExecStatuses.push(data[i][1]);
+        }
+        i--;
+      }
+      if(lastExecStatuses.every(failedCheckFn)) {
+        self.data[period].apps[appName].health = 'red';
+      } else if(lastExecStatuses.some(failedCheckFn)) {
+        self.data[period].apps[appName].health = 'orange';
+      } else {
+        self.data[period].apps[appName].health = 'green';
+      }
+    }
+
     for(i = 0; i < self.data[period].chartData.call.length; i++) {
       self.data[period].chartData.call[i][1] = avg(self.data[period].chartData.call[i][1]);
     }

@@ -84,7 +84,7 @@ function updateData(data) {
 
   document.querySelector('#app-table').innerHTML = '';
   for(var key in data.apps) {
-    appRow('green', key, data.apps[key]);
+    appRow(data.apps[key].health, key, data.apps[key].data);
   }
 }
 
