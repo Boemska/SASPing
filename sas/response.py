@@ -1,6 +1,6 @@
 
 class Response:
-    def __init__(self, id, status, failedTestGroup=None, failedPatt=None, message=None, timestamp=None, execTime=None, hadToLogin=False, appName=False):
+    def __init__(self, id, status, failedTestGroup=None, failedPatt=None, message=None, timestamp=None, execTime=None, hadToLogin=False, appName=None, programExecTime=None):
         self.id              = id
         self.status          = status
         self.failedTestGroup = failedTestGroup
@@ -10,7 +10,7 @@ class Response:
         self.execTime        = execTime
         self.hadToLogin      = hadToLogin
         self.appName         = appName
-        self.programExecTime = None
+        self.programExecTime = programExecTime
 
     def setTime(self, timestamp, execTime):
         self.timestamp = timestamp
@@ -42,10 +42,10 @@ class Response:
             'failed pattern',
             'message',
             'timestamp',
-            'execution time',
+            'execution duration',
             'had to login',
             'application name',
-            'program exec time'
+            'program exec timestamp'
         ]
 
     def __iter__(self):
@@ -54,8 +54,8 @@ class Response:
         yield 'failed test group', self.failedTestGroup
         yield 'failed pattern', self.failedPatt
         yield 'message', self.message
-        yield 'timestamp', self.timestamp
-        yield 'execution time', self.execTime
-        yield 'had to login', 1 if self.hadToLogin else 0,
+        yield 'timestamp', int(self.timestamp)
+        yield 'execution duration', str(round(self.execTime, 3)) + ' seconds'
+        yield 'had to login', 1 if self.hadToLogin else 0
         yield 'application name', self.appName or ''
-        yield 'program exec time', self.programExecTime
+        yield 'program exec timestamp', int(self.programExecTime)

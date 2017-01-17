@@ -21,8 +21,8 @@ def run(config):
     try:
         startTime = time.time()
         loginStatus = login()
-        loginTime = round(time.time() - startTime, 3)
-        loginResponse = Response('sasping login request', 'success', timestamp=time.time(), execTime=(str(loginTime) + ' seconds'))
+        loginTime = time.time() - startTime
+        loginResponse = Response('sasping login request', 'success', timestamp=time.time(), execTime=loginTime)
         if not(loginStatus):
             raise RuntimeError('Failed to login.')
     except requests.exceptions.Timeout as err:
@@ -30,7 +30,7 @@ def run(config):
     except Exception as err:
         loginResponse = Response('sasping login request', 'fail', message=str(err))
     finally:
-        loginResponse.setTime(startTime, str(round(time.time() - startTime, 3)) + ' seconds')
+        loginResponse.setTime(startTime, time.time() - startTime)
 
     outData.append(dict(loginResponse.setProgramExecTime(programExecTime)))
     applications = _settings.get('applications')
@@ -46,7 +46,7 @@ def run(config):
             except requests.exceptions.RequestException as e:
                 response = Response(test.get('id'), 'fail', message=str(e))
             finally:
-                response.setTime(startTime, str(round(time.time() - startTime, 3)) + ' seconds')
+                response.setTime(startTime, time.time() - startTime)
                 response.setAppName(app['name'])
                 outData.append(dict(response.setProgramExecTime(programExecTime)))
 

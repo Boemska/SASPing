@@ -151,8 +151,8 @@ function processData(data) {
       if(data[i][1] === 'fail') count.failed[period]++;
       if(data[i][0] === 'sasping login request') {
         count.login[period]++;
-        execTime = Math.round(data[i][9] * 1000);
-        execDuration = Math.round(parseFloat(data[i][6]) * 1000);
+        execTime = Number(data[i][9]) * 1000;
+        execDuration = parseFloat(data[i][6]) * 1000;
         time.login[period] += execDuration;
 
         self.data[period].chartData.login.push([
@@ -161,9 +161,9 @@ function processData(data) {
         ]);
       } else {
         count.call[period]++;
-        execDuration = Math.round(parseFloat(data[i][6]) * 1000);
+        execDuration = parseFloat(data[i][6]) * 1000;
         time.call[period] += execDuration;
-        execTime = Math.round(data[i][9] * 1000);
+        execTime = Number(data[i][9]) * 1000;
 
         lastExecCallData = self.data[period].chartData.call[self.data[period].chartData.call.length - 1];
         if(lastExecCallData === undefined || lastExecCallData[0] !== execTime) {
@@ -178,10 +178,10 @@ function processData(data) {
         //add to apps
         if(self.data[period].apps[data[i][8]] === undefined) {
           self.data[period].apps[data[i][8]] = {
-            data: [[Math.round(data[i][5] * 1000), execDuration]]
+            data: [[data[i][5] * 1000, execDuration]]
           };
         } else {
-          self.data[period].apps[data[i][8]].data.push([Math.round(data[i][5] * 1000), execDuration]);
+          self.data[period].apps[data[i][8]].data.push([data[i][5] * 1000, execDuration]);
         }
       }
       iqrData.push(execDuration);
@@ -190,9 +190,9 @@ function processData(data) {
     //set app health status
     for(var appName in self.data[period].apps) {
       i = data.length - 1;
-      var lastExecTime = data[i][9];
+      var lastExecTime = Number(data[i][9]);
       var lastExecStatuses = [];
-      while(lastExecTime === data[i][9]) {
+      while(lastExecTime === Number(data[i][9])) {
         if(appName === data[i][8]) {
           lastExecStatuses.push(data[i][1]);
         }
