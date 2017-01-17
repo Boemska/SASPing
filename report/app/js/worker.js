@@ -144,8 +144,8 @@ function processData(data) {
 
   for(period in self.data) {
     iqrData = [];
-    for(i = 0; i < data.length; i++) {
-      if(data[i][5] * 1000 < timestamps[period]) continue; //not in period/timespan
+    for(i = data.length-1; i >= 0; i--) {
+      if(data[i][5] * 1000 < timestamps[period]) break; //not in period/timespan
 
       count.total[period]++;
       if(data[i][1] === 'fail') count.failed[period]++;

@@ -59,7 +59,6 @@ function setPeriod(el, period) {
 
 
 function updateData(data) {
-  console.log(data)
   if(data.uptime !== null && !isNaN(data.uptime)) {
     setGauge(document.querySelector('#uptime .gauge'), data.uptime * 100);
   } else {
@@ -81,7 +80,7 @@ function updateData(data) {
     document.querySelector('#iqr-time').innerHTML = '-';
   }
 
-  // drawChart(data.chartData);
+  drawChart(data.chartData);
 
   document.querySelector('#app-table').innerHTML = '';
   for(var key in data.apps) {
