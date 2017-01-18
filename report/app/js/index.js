@@ -95,7 +95,7 @@ function drawChart(chartData) {
       .duration(60)
       .x(function(d) { return d[0]; })
       .y(function(d) { return d[1]; })
-      .useInteractiveGuideline(true)
+      // .useInteractiveGuideline(true)
       .showControls(true)
       .clipEdge(true);
 
