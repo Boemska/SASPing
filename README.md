@@ -16,7 +16,7 @@ It will append new requests if file already exists.
 
 ### Develop
 `cd report && npm run dev`
-and open http://localhost:8000
+and open http://localhost:8000/build/
 
 ### Test
 `python -m unittest tests`
