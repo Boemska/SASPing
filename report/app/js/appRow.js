@@ -1,11 +1,11 @@
 module.exports = function(ledColor, appName, data) {
 /*
-  <div class="row app-row card" style="height: 100px;">
+  <div class="row app-row card">
     <div class="row-content align-children">
-      <div class="flex-nogrow">
-        <div class="led led-red center-table"></div>
+      <div>
+        <div class="led center-table led-red"></div>
       </div>
-      <div class="flex-nogrow">
+      <div>
         <p>Stored process</p>
       </div>
       <div>
@@ -15,15 +15,15 @@ module.exports = function(ledColor, appName, data) {
   </div>
 */
   var row = d3.select('#app-table')
-      .append('div').style('height', '100px').attr('class', 'row app-row card')
+      .append('div').attr('class', 'row app-row card')
         .append('div').attr('class', 'row-content align-children');
-  row.append('div').attr('class', 'flex-nogrow')
+  row.append('div')
         .append('div').attr('class', 'led center-table led-' + ledColor);
-  row.append('div').attr('class', 'flex-nogrow')
+  row.append('div')
         .append('p').text(appName);
 
   var svgWrapper = row.append('div');
-  var svg = svgWrapper.append('svg');
+  var svg = svgWrapper.append('svg').style('height', '100px');
   var svgWrapperRect = svgWrapper.node().getBoundingClientRect();
 
   nv.addGraph({
@@ -43,6 +43,14 @@ module.exports = function(ledColor, appName, data) {
           return ledColor;
         });
       svg.datum(data).call(chart);
+
+      nv.utils.windowResize(function() {
+        // setTimeout(function() {
+          svgWrapperRect = svgWrapper.node().getBoundingClientRect();
+          chart.width(svgWrapperRect.width).height(svgWrapperRect.height);
+          chart.update();
+        // }, 30);
+      });
       return chart;
     }
   });
