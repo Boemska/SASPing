@@ -97,6 +97,7 @@ function drawChart(chartData) {
       .y(function(d) { return d[1]; })
       .showControls(false)
       .clipEdge(true)
+      .showYAxis(false)
       .style('stream-center');
 
     if(chartData.login.length > 0 && chartData.call.length > 0) {
