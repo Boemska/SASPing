@@ -95,9 +95,9 @@ function drawChart(chartData) {
       .duration(60)
       .x(function(d) { return d[0]; })
       .y(function(d) { return d[1]; })
-      .showControls(true)
+      .showControls(false)
       .clipEdge(true)
-      .options({controlOptions: ['Stacked', 'Expanded']});
+      .style('stream-center');
 
     if(chartData.login.length > 0 && chartData.call.length > 0) {
       //the array is reverse - last to first
