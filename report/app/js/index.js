@@ -100,7 +100,8 @@ function drawChart(chartData) {
       .clipEdge(true);
 
     if(chartData.login.length > 0 && chartData.call.length > 0) {
-      var firstRequestTime = chartData.login[0][0];
+      //the array is reverse - last to first
+      var firstRequestTime = chartData.login[chartData.login.length-1][0];
 
       chart.xAxis.tickFormat(function(d) {
         if(Date.now() - firstRequestTime < 24 * 60 * 60 * 1000) {
@@ -113,7 +114,7 @@ function drawChart(chartData) {
 
     chart.yAxis
         .tickFormat(function(v) {
-          return (v/1000).toFixed(3) + ' s';
+          return (v/1000).toFixed(3).replace(/00?$/, '') + ' s';
         });
 
     d3.select('#main-chart svg')
