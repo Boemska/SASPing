@@ -38,6 +38,8 @@ document.addEventListener("DOMContentLoaded", function() {
       setPeriod(el, el.dataset.period);
     });
   });
+
+  updateMotd();
 });
 
 //dom onclick event handler
@@ -155,4 +157,17 @@ function setGauge(el, percent) {
       throw e;
     }
   }, 10);
+}
+
+function updateMotd() {
+  d3.xhr('motd.txt', function(response) {
+    if(response.status !== 200) {
+      alert('Error loading motd.txt with status code ' + (err.status || 'unknown'));
+    } else {
+      var motdArr = response.responseText.split('\n');
+      if(motdArr[motdArr.length-1] === '') motdArr.pop();
+      var motd = motdArr[Math.floor(Math.random() * motdArr.length)];
+      document.querySelector('#motd p').innerHTML = motd;
+    }
+  });
 }

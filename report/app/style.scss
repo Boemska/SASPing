@@ -99,6 +99,9 @@ body {
   #motd {
     display: flex;
     align-items: center;
+    p {
+      width: 100%;
+    }
   }
 
   #app-table {
