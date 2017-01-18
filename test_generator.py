@@ -11,7 +11,8 @@ fromTimestamp = int(sys.argv[1])
 interval      = int(sys.argv[2])
 maximum       = int(sys.argv[3])
 testsPerRun   = int(sys.argv[4])
-outputPath    = sys.argv[5]
+appsCount     = int(sys.argv[5])
+outputPath    = sys.argv[6]
 
 currentTimestamp = int(time.time())
 run = 0
@@ -41,7 +42,7 @@ while(fromTimestamp + (interval * run) < currentTimestamp and (maximum > 0 and r
             fromTimestamp + (interval * run),
             float(randint(50, 3000))/1000,
             False,
-            'test app ' + str(randint(0, 10)),
+            'test app ' + str(randint(1, appsCount)),
             fromTimestamp + (interval * run)
         )
         out.append(dict(response))
