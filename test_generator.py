@@ -24,7 +24,7 @@ while(fromTimestamp + (interval * run) < currentTimestamp and (maximum > 0 and r
         'sasping login request',
         'success',
         timestamp=fromTimestamp + (interval * run),
-        execTime=randint(50, 30000)/1000,
+        execTime=float(randint(50, 3000))/1000,
         programExecTime=fromTimestamp + (interval * run)
     )
     out.append(dict(response))
@@ -39,7 +39,7 @@ while(fromTimestamp + (interval * run) < currentTimestamp and (maximum > 0 and r
             'str' if testStatus == 'fail' else None,
             'fail message' if testStatus == 'fail' else None,
             fromTimestamp + (interval * run),
-            randint(50, 30000)/1000,
+            float(randint(50, 3000))/1000,
             False,
             'test app ' + str(randint(0, 10)),
             fromTimestamp + (interval * run)

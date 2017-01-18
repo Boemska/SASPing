@@ -37,7 +37,7 @@ module.exports = function(ledColor, appName, data) {
           return d3.time.format('%d-%m-%y %H:%M')(new Date(data[d][0]));
         })
         .yTickFormat(function(d) {
-          return d + ' ms';
+          return d / 1000 + ' s';
         })
         .color(function(d) {
           return ledColor;

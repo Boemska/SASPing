@@ -113,7 +113,7 @@ function drawChart(chartData) {
 
     chart.yAxis
         .tickFormat(function(v) {
-          return d3.format(',.1f')(v) + ' ms';
+          return (v/1000).toFixed(3) + ' s';
         });
 
     d3.select('#main-chart svg')
