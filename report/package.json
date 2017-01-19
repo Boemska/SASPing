@@ -24,7 +24,7 @@
     "copy:index.html": "./node_modules/copyfiles/copyfiles -f app/index.html build",
     "copy:csv": "./node_modules/copyfiles/copyfiles -f app/sasping_data.csv build",
     "copy:motd": "./node_modules/copyfiles/copyfiles -f app/motd.txt build",
-    "copy": "parallelshell 'npm run copy:index.html' 'npm run copy:csv', 'npm run copy:motd'",
+    "copy": "parallelshell 'npm run copy:index.html' 'npm run copy:csv' 'npm run copy:motd'",
     "dev": "npm run mkbuild; parallelshell 'npm run pack:dev' 'npm run copy' 'npm start'"
   },
   "author": "bojan@boemskats.com",
