@@ -42,20 +42,22 @@ class Response:
             'failed pattern',
             'message',
             'timestamp',
-            'execution duration',
+            'execution duration (s)',
             'had to login',
             'application name',
             'program exec timestamp'
         ]
 
     def __iter__(self):
+        # for boolean 1 is true, None (empty in csv) is false
+        # this is also convenient in JS where empty is falsy value
         yield 'id', self.id
-        yield 'status', self.status
+        yield 'status', 1 if self.status == 'success' else None
         yield 'failed test group', self.failedTestGroup
         yield 'failed pattern', self.failedPatt
         yield 'message', self.message
         yield 'timestamp', int(self.timestamp)
-        yield 'execution duration', str(round(self.execTime, 3)) + ' seconds'
-        yield 'had to login', 1 if self.hadToLogin else 0
+        yield 'execution duration (s)', round(self.execTime, 3)
+        yield 'had to login', 1 if self.hadToLogin else None
         yield 'application name', self.appName or ''
         yield 'program exec timestamp', int(self.programExecTime)

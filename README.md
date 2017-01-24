@@ -10,7 +10,7 @@ Stateless SAS program runner via web interface
 ### How to run
 `cd ..` - only if you are in report directory after `npm install`.
 
-`python main.py [settings json file path] [output csv|html file path]`
+`python main.py [settings json file path] [output dir]`
 
 It will append new requests if file already exists.
 

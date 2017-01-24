@@ -2,8 +2,6 @@
 var mainCol = '#7ab648';
 var gaugeCol = '#ddd';
 
-var timeFormat = d3.time.format("%d/%m/%Y, %H:%M");
-var period = 'day';
 var worker;
 
 var appRow = require('./appRow.js');
@@ -25,7 +23,6 @@ worker.onmessage = function(evt) {
       break;
     case 'update':
       updateData(evt.data.data);
-      getDataInterval = null;
       break;
   }
 };
@@ -34,7 +31,7 @@ document.addEventListener("DOMContentLoaded", function() {
   worker.postMessage({action: 'domReady'});
 
   document.querySelectorAll('#time-btns > h3').forEach(function(el) {
-    el.addEventListener('click', function(evt) {
+    el.addEventListener('click', function() {
       setPeriod(el, el.dataset.period);
     });
   });
@@ -44,8 +41,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
 //dom onclick event handler
 function setPeriod(el, period) {
-  period = period;
-
   if(el) {
     document.querySelectorAll('.time-btn').forEach(function(btn) {
       btn.classList.remove('active');
@@ -162,7 +157,7 @@ function setGauge(el, percent) {
 function updateMotd() {
   d3.xhr('motd.txt', function(response) {
     if(response.status !== 200) {
-      alert('Error loading motd.txt with status code ' + (err.status || 'unknown'));
+      alert('Error loading motd.txt with status code ' + (response.status || 'unknown'));
     } else {
       var motdArr = response.responseText.split('\n');
       if(motdArr[motdArr.length-1] === '') motdArr.pop();

@@ -1,68 +1,45 @@
-var Papa = require('papaparse');
 var iqr = require('compute-iqr');
-self.data = {
-  day: {
-    uptime: null,
-    avgResponse: null,
-    avgLogin: null,
-    iqr: null,
-    apps: {},
-    chartData: {
-      login: [],
-      call: []
-    }
-  },
-  week: {
-    uptime: null,
-    avgResponse: null,
-    avgLogin: null,
-    iqr: null,
-    apps: {},
-    chartData: {
-      login: [],
-      call: []
-    }
-  },
-  month: {
-    uptime: null,
-    avgResponse: null,
-    avgLogin: null,
-    iqr: null,
-    apps: {},
-    chartData: {
-      login: [],
-      call: []
-    }
-  },
-  all: {
-    uptime: null,
-    avgResponse: null,
-    avgLogin: null,
-    iqr: null,
-    apps: {},
-    chartData: {
-      login: [],
-      call: []
-    }
-  }
-};
-var dataReady = false;
-var pendingSend = false;
-var initialDataSent = false;
+var Papa = require('papaparse');
 
-Papa.parse('../sasping_data.csv', {
-  download: true,
-  error: function(err) {
-    var errMsg = typeof err === 'string' ? err : (err.message || 'no message');
+self.dataReady = false;
+self.pendingSend = false;
+self.initialDataSent = false;
+
+function update(callback) {
+  Papa.parse('../sasping_data_latest.csv', {
+    download: true,
+    error: function(err) {
+      var errMsg = typeof err === 'string' ? err : (err.message || 'no message');
+      postMessage({
+        action: 'error',
+        msg: 'Error loading CSV file with message: ' + errMsg
+      });
+    },
+    complete: function(papaParsedObj) {
+      updateLatest(papaParsedObj.data);
+      callback();
+
+      setTimeout(function() {
+        updateWeek();
+        updateMonth();
+        updateAll();
+      }, 0);
+    }
+  });
+}
+
+update(function() {
+  if(!self.initialDataSent && self.pendingSend) {
     postMessage({
-      action: 'error',
-      msg: 'Error loading CSV file with message: ' + errMsg
+      action: 'update',
+      data: self.processedData['day']
     });
-  },
-  complete: function(papaParsedObj) {
-    processData(papaParsedObj.data);
+    self.initialDataSent = true;
+    self.pendingSend = false;
   }
 });
+
+setTimeout(update, 10 * 60 * 1000);
 
 onmessage = function(evt) {
   switch(evt.data.action) {
@@ -70,167 +47,192 @@ onmessage = function(evt) {
       // no break - we want it to go to the next case
     case 'getData':
       //not sending the message if there are requests in queue
-      if(dataReady) {
+      if(!self.pendingSend && self.processedData[evt.data.period || 'day']) {
         postMessage({
           action: 'update',
-          data: self.data[evt.data.period || 'day']
+          data: self.processedData[evt.data.period || 'day']
         });
+        self.pendingSend = false;
       } else {
-        pendingSend = true;
+        self.pendingSend = true;
       }
       break;
   }
 };
 
-function processData(data) {
-  data.shift(); //remove headings
+self.processedData = {
+  'day': null,
+  'week': null,
+  'month': null,
+  'all': null
+}
+
+function updateLatest(data) {
+  var now = new Date();
+  var dayOldTimestamp = new Date().setDate(now.getDate() - 1);
+  self.processedData['day'] = processData(data, dayOldTimestamp);
+}
+
+function updateWeek() {
+  Papa.parse('../sasping_data_week.csv', {
+    download: true,
+    error: function(err) {
+      var errMsg = typeof err === 'string' ? err : (err.message || 'no message');
+      postMessage({
+        action: 'error',
+        msg: 'Error loading CSV file with message: ' + errMsg
+      });
+    },
+    complete: function(papaParsedObj) {
+      var now = new Date();
+      var weekldTimestamp = new Date().setDate(now.getDate() - 7)
+      self.processedData['week'] = processData(papaParsedObj.data, weekldTimestamp);
+    }
+  });
+}
+function updateMonth() {
+  Papa.parse('../sasping_data_month.csv', {
+    download: true,
+    error: function(err) {
+      var errMsg = typeof err === 'string' ? err : (err.message || 'no message');
+      postMessage({
+        action: 'error',
+        msg: 'Error loading CSV file with message: ' + errMsg
+      });
+    },
+    complete: function(papaParsedObj) {
+      var now = new Date();
+      var monthOldTimestamp = new Date().setMonth(now.getMonth() - 1)
+      self.processedData['month'] = processData(papaParsedObj.data, monthOldTimestamp);
+    }
+  });
+}
+function updateAll() {
+  Papa.parse('../sasping_data_allTime.csv', {
+    download: true,
+    error: function(err) {
+      var errMsg = typeof err === 'string' ? err : (err.message || 'no message');
+      postMessage({
+        action: 'error',
+        msg: 'Error loading CSV file with message: ' + errMsg
+      });
+    },
+    complete: function(papaParsedObj) {
+      self.processedData['all'] = processData(papaParsedObj.data, 0);
+    }
+  });
+}
+
+function processData(data, timestamp) {
   if(data[data.length - 1].length === 1) data.pop(); //remove last row if it's empty
 
-  var now = new Date();
-
-  var timestamps = {
-    day: new Date().setDate(now.getDate() - 1),
-    week: new Date().setDate(now.getDate() - 7),
-    month: new Date().setMonth(now.getMonth() - 1),
-    all: 0
-  };
-
-
-  var count = {
-    total: {
-      day: 0,
-      week: 0,
-      month: 0,
-      all: 0
-    },
-    failed: {
-      day: 0,
-      week: 0,
-      month: 0,
-      all: 0
-    },
-    login: {
-      day: 0,
-      week: 0,
-      month: 0,
-      all: 0
-    },
-    call: {
-      day: 0,
-      week: 0,
-      month: 0,
-      all: 0
+  var processedData = {
+    uptime: null,
+    avgResponse: null,
+    avgLogin: null,
+    iqr: null,
+    apps: {},
+    chartData: {
+      login: [],
+      call: []
     }
+  };
+  var count = {
+    total: 0,
+    failed: 0,
+    login: 0,
+    call: 0
   };
   var time = {
-    login: {
-      day: 0,
-      week: 0,
-      month: 0,
-      all: 0
-    },
-    call: {
-      day: 0,
-      week: 0,
-      month: 0,
-      all: 0
-    }
+    login: 0,
+    call: 0
   };
 
-  var i, period, execTime, execDuration, iqrData;
+  var i, execTime, execDuration, iqrData, lastExecCallData;
   var failedCheckFn = function(status) {
-    return status === 'fail';
+    return !status;
   };
 
-  for(period in self.data) {
-    iqrData = [];
-    for(i = data.length-1; i >= 0; i--) {
-      if(data[i][5] * 1000 < timestamps[period]) break; //not in period/timespan
+  iqrData = [];
+  for(i = data.length-1; i >= 0; i--) {
+    if(data[i][2] * 1000 < timestamp) break; //not in period/timespan
 
-      count.total[period]++;
-      if(data[i][1] === 'fail') count.failed[period]++;
-      if(data[i][0] === 'sasping login request') {
-        count.login[period]++;
-        execTime = Number(data[i][9]) * 1000;
-        execDuration = parseFloat(data[i][6]) * 1000;
-        time.login[period] += execDuration;
+    count.total++;
+    if(!data[i][1]) count.failed++;
+    if(data[i][0] === 'sasping login request') {
+      count.login++;
+      execTime = Number(data[i][6]) * 1000;
+      execDuration = data[i][3] * 1000;
+      time.login += execDuration;
 
-        self.data[period].chartData.login.push([
+      processedData.chartData.login.push([
+        execTime,
+        execDuration,
+      ]);
+    } else {
+      count.call++;
+      execDuration = data[i][3] * 1000;
+      time.call += execDuration;
+      execTime = Number(data[i][6]) * 1000;
+
+      lastExecCallData = processedData.chartData.call[processedData.chartData.call.length - 1];
+      if(lastExecCallData === undefined || lastExecCallData[0] !== execTime) {
+        processedData.chartData.call.push([
           execTime,
-          execDuration,
+          [execDuration]
         ]);
       } else {
-        count.call[period]++;
-        execDuration = parseFloat(data[i][6]) * 1000;
-        time.call[period] += execDuration;
-        execTime = Number(data[i][9]) * 1000;
-
-        lastExecCallData = self.data[period].chartData.call[self.data[period].chartData.call.length - 1];
-        if(lastExecCallData === undefined || lastExecCallData[0] !== execTime) {
-          self.data[period].chartData.call.push([
-            execTime,
-            [execDuration]
-          ]);
-        } else {
-          lastExecCallData[1].push(execDuration);
-        }
-
-        //add to apps
-        if(self.data[period].apps[data[i][8]] === undefined) {
-          self.data[period].apps[data[i][8]] = {
-            data: [[data[i][5] * 1000, execDuration]]
-          };
-        } else {
-          self.data[period].apps[data[i][8]].data.push([data[i][5] * 1000, execDuration]);
-        }
+        lastExecCallData[1].push(execDuration);
       }
-      iqrData.push(execDuration);
-    }
 
-    //set app health status
-    for(var appName in self.data[period].apps) {
-      i = data.length - 1;
-      var lastExecTime = Number(data[i][9]);
-      var lastExecStatuses = [];
-      while(lastExecTime === Number(data[i][9])) {
-        if(appName === data[i][8]) {
-          lastExecStatuses.push(data[i][1]);
-        }
-        i--;
-      }
-      if(lastExecStatuses.every(failedCheckFn)) {
-        self.data[period].apps[appName].health = 'red';
-      } else if(lastExecStatuses.some(failedCheckFn)) {
-        self.data[period].apps[appName].health = 'orange';
+      //add to apps
+      if(processedData.apps[data[i][5]] === undefined) {
+        processedData.apps[data[i][5]] = {
+          data: [[data[i][2] * 1000, execDuration]]
+        };
       } else {
-        self.data[period].apps[appName].health = 'green';
+        processedData.apps[data[i][5]].data.push([data[i][2] * 1000, execDuration]);
       }
     }
+    iqrData.push(execDuration);
+  }
 
-    for(i = 0; i < self.data[period].chartData.call.length; i++) {
-      self.data[period].chartData.call[i][1] = avg(self.data[period].chartData.call[i][1]);
-    }
-    self.data[period].iqr = iqr(iqrData);
-
-    if(count.total[period] !== 0) {
-      self.data[period].uptime = ((count.total[period] - count.failed[period]) / count.total[period]).toFixed(2);
-      if(count.call[period]) {
-        self.data[period].avgResponse = Math.round(time.call[period] / count.call[period]);
+  //set app health status
+  for(var appName in processedData.apps) {
+    i = data.length - 1;
+    var lastExecTime = Number(data[i][6]);
+    var lastExecStatuses = [];
+    while(lastExecTime === Number(data[i][6])) {
+      if(appName === data[i][5]) {
+        lastExecStatuses.push(data[i][1]);
       }
-      if(count.login[period]) {
-        self.data[period].avgLogin = Math.round(time.login[period] / count.login[period]);
-      }
+      i--;
     }
-
-    if(!initialDataSent && pendingSend && period === 'day') {
-      postMessage({
-        action: 'update',
-        data: self.data.day
-      });
-      initialDataSent = true;
+    if(lastExecStatuses.every(failedCheckFn)) {
+      processedData.apps[appName].health = 'red';
+    } else if(lastExecStatuses.some(failedCheckFn)) {
+      processedData.apps[appName].health = 'orange';
+    } else {
+      processedData.apps[appName].health = 'green';
     }
   }
-  dataReady = true;
+
+  for(i = 0; i < processedData.chartData.call.length; i++) {
+    processedData.chartData.call[i][1] = avg(processedData.chartData.call[i][1]);
+  }
+  processedData.iqr = iqr(iqrData);
+
+  if(count.total !== 0) {
+    processedData.uptime = ((count.total - count.failed) / count.total).toFixed(2);
+    if(count.call) {
+      processedData.avgResponse = Math.round(time.call / count.call);
+    }
+    if(count.login) {
+      processedData.avgLogin = Math.round(time.login / count.login);
+    }
+  }
+
+  return processedData;
 }
 
 function avg(arr) {

@@ -29,6 +29,7 @@ module.exports = function(ledColor, appName, data) {
   nv.addGraph({
     generate: function() {
       var chart = nv.models.sparklinePlus()
+        .showLastValue(false)
         .width(svgWrapperRect.width)
         .height(svgWrapperRect.height)
         .x(function(d, i) { return i; })
