@@ -1,3 +1,4 @@
+/* eslint no-fallthrough: off */
 /* eslint-env node, browser */
 var iqr = require('compute-iqr');
 var Papa = require('papaparse');
@@ -18,7 +19,9 @@ function update(callback) {
     },
     complete: function(papaParsedObj) {
       updateLatest(papaParsedObj.data);
-      callback();
+      if(callback) {
+        callback();
+      }
 
       setTimeout(function() {
         updateWeek();
@@ -66,7 +69,7 @@ self.processedData = {
   'week': null,
   'month': null,
   'all': null
-}
+};
 
 function updateLatest(data) {
   var now = new Date();
@@ -86,7 +89,7 @@ function updateWeek() {
     },
     complete: function(papaParsedObj) {
       var now = new Date();
-      var weekldTimestamp = new Date().setDate(now.getDate() - 7)
+      var weekldTimestamp = new Date().setDate(now.getDate() - 7);
       self.processedData['week'] = processData(papaParsedObj.data, weekldTimestamp);
     }
   });
@@ -103,7 +106,7 @@ function updateMonth() {
     },
     complete: function(papaParsedObj) {
       var now = new Date();
-      var monthOldTimestamp = new Date().setMonth(now.getMonth() - 1)
+      var monthOldTimestamp = new Date().setMonth(now.getMonth() - 1);
       self.processedData['month'] = processData(papaParsedObj.data, monthOldTimestamp);
     }
   });
@@ -169,7 +172,7 @@ function processData(data, timestamp) {
       processedData.chartData.login.push([
         execTime,
         execDuration,
-        !!data[i][1]
+        !!data[i][1] // is failed
       ]);
     } else {
       count.call++;
@@ -182,27 +185,28 @@ function processData(data, timestamp) {
         processedData.chartData.call.push([
           execTime,
           [execDuration],
-          !!data[i][1]
+          [!!data[i][1]] // is failed
         ]);
       } else {
         lastExecCallData[1].push(execDuration);
+        lastExecCallData[2].push(!!data[i][1]);
       }
 
       //add to apps
       if(processedData.apps[data[i][5]] === undefined) {
         processedData.apps[data[i][5]] = {
-          data: [[
-            data[i][2] * 1000,
-            execDuration,
-            !!data[i][1]
-          ]]
+          data: [{
+            x: data[i][2] * 1000,
+            y: execDuration,
+            failed: !!data[i][1]
+          }]
         };
       } else {
-        processedData.apps[data[i][5]].data.push([
-          data[i][2] * 1000,
-          execDuration,
-          !!data[i][1]
-        ]);
+        processedData.apps[data[i][5]].data.push({
+          x: data[i][2] * 1000,
+          y: execDuration,
+          failed: !!data[i][1]
+        });
       }
     }
     iqrData.push(execDuration);
@@ -230,6 +234,9 @@ function processData(data, timestamp) {
 
   for(i = 0; i < processedData.chartData.call.length; i++) {
     processedData.chartData.call[i][1] = avg(processedData.chartData.call[i][1]);
+    processedData.chartData.call[i][2] = processedData.chartData.call[i][2].every(function(val) {
+      return val === true;
+    });
   }
   processedData.iqr = iqr(iqrData);
 

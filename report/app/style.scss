@@ -204,6 +204,19 @@ body {
   align-items: center;
 }
 
+.sparkline path {
+    stroke: steelblue;
+    stroke-width: 2;
+    fill: none;
+}
+.sparkline .axis path,
+.sparkline .axis line {
+    fill: none;
+    stroke: grey;
+    stroke-width: 1;
+    shape-rendering: crispEdges;
+}
+
 @media (max-width: 1024px) {
   #content {
     .row {

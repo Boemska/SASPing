@@ -29,7 +29,7 @@ worker.onmessage = function(evt) {
   }
 };
 
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener('DOMContentLoaded', function() {
   worker.postMessage({action: 'domReady'});
 
   document.querySelectorAll('#time-btns > h3').forEach(function(el) {
@@ -93,7 +93,7 @@ function drawChart(chartData) {
     var chart = nv.models.stackedAreaChart()
       .duration(60)
       .x(function(d) { return d[0]; })
-      .y(function(d) { return d[1]; })
+      .y(function(d) { return d[2] && d[1] || null; })
       .showControls(false)
       .clipEdge(true)
       .showYAxis(false)
