@@ -1,3 +1,5 @@
+/* eslint-env node, browser */
+/* globals d3, nv */
 module.exports = function(ledColor, appName, data) {
 /*
   <div class="row app-row card">
@@ -40,17 +42,15 @@ module.exports = function(ledColor, appName, data) {
         .yTickFormat(function(d) {
           return d / 1000 + ' s';
         })
-        .color(function(d) {
+        .color(function() {
           return ledColor;
         });
       svg.datum(data).call(chart);
 
       nv.utils.windowResize(function() {
-        // setTimeout(function() {
-          svgWrapperRect = svgWrapper.node().getBoundingClientRect();
-          chart.width(svgWrapperRect.width).height(svgWrapperRect.height);
-          chart.update();
-        // }, 30);
+        svgWrapperRect = svgWrapper.node().getBoundingClientRect();
+        chart.width(svgWrapperRect.width).height(svgWrapperRect.height);
+        chart.update();
       });
       return chart;
     }

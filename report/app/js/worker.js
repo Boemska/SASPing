@@ -1,3 +1,4 @@
+/* eslint-env node, browser */
 var iqr = require('compute-iqr');
 var Papa = require('papaparse');
 
@@ -41,7 +42,7 @@ update(function() {
 
 setTimeout(update, 10 * 60 * 1000);
 
-onmessage = function(evt) {
+self.onmessage = function(evt) {
   switch(evt.data.action) {
     case 'domReady':
       // no break - we want it to go to the next case
@@ -168,6 +169,7 @@ function processData(data, timestamp) {
       processedData.chartData.login.push([
         execTime,
         execDuration,
+        !!data[i][1]
       ]);
     } else {
       count.call++;
@@ -179,7 +181,8 @@ function processData(data, timestamp) {
       if(lastExecCallData === undefined || lastExecCallData[0] !== execTime) {
         processedData.chartData.call.push([
           execTime,
-          [execDuration]
+          [execDuration],
+          !!data[i][1]
         ]);
       } else {
         lastExecCallData[1].push(execDuration);
@@ -188,10 +191,18 @@ function processData(data, timestamp) {
       //add to apps
       if(processedData.apps[data[i][5]] === undefined) {
         processedData.apps[data[i][5]] = {
-          data: [[data[i][2] * 1000, execDuration]]
+          data: [[
+            data[i][2] * 1000,
+            execDuration,
+            !!data[i][1]
+          ]]
         };
       } else {
-        processedData.apps[data[i][5]].data.push([data[i][2] * 1000, execDuration]);
+        processedData.apps[data[i][5]].data.push([
+          data[i][2] * 1000,
+          execDuration,
+          !!data[i][1]
+        ]);
       }
     }
     iqrData.push(execDuration);

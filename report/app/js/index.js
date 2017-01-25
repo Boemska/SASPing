@@ -1,3 +1,5 @@
+/* eslint-env node, browser */
+/* globals d3, nv */
 //colors from style.scss
 var mainCol = '#7ab648';
 var gaugeCol = '#ddd';
