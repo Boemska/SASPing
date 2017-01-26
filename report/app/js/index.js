@@ -81,7 +81,10 @@ function updateData(data) {
 
   drawChart(data.chartData);
 
-  document.querySelector('#app-table').innerHTML = '';
+  var appTable = document.querySelector('#app-table');
+  document.querySelectorAll('#app-table .row').forEach(function(row) {
+    appTable.removeChild(row);
+  });
   for(var key in data.apps) {
     appRow(data.apps[key].health, key, data.apps[key].data);
   }

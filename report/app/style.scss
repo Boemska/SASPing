@@ -204,17 +204,37 @@ body {
   align-items: center;
 }
 
-.sparkline path {
-    stroke: steelblue;
-    stroke-width: 2;
-    fill: none;
+
+.sparkline {
+  height: 100%;
+  path {
+      stroke: steelblue;
+      stroke-width: 2;
+      fill: none;
+  }
+  .axis {
+    path,
+    line {
+      fill: none;
+      stroke: grey;
+      stroke-width: 1;
+      shape-rendering: crispEdges;
+    }
+  }
+  circle {
+    fill: darken(steelblue, 20%);
+  }
 }
-.sparkline .axis path,
-.sparkline .axis line {
-    fill: none;
-    stroke: grey;
-    stroke-width: 1;
-    shape-rendering: crispEdges;
+
+.tooltip {
+  background: #eee;
+  box-shadow: 0 0 5px #999999;
+  color: #333;
+  visibility: hidden;
+  font-size: 12px;
+  padding: 20px;
+  position: fixed;
+  z-index: 10;
 }
 
 @media (max-width: 1024px) {
