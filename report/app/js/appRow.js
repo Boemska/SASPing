@@ -78,9 +78,7 @@ module.exports = function(ledColor, appName, data) {
           .on('mouseover', function(d) {
             d3.select(this).attr('r', 6);
             var clientRect = this.getBoundingClientRect();
-            tooltip.time(new Date(d.x))
-                   .duration(d.y)
-                   .show(clientRect.top, clientRect.left);
+            tooltip.setAppChartData(d.id, new Date(d.x), d.y).show(clientRect.top, clientRect.left);
           })
           .on('mouseout', function() {
             d3.select(this).attr('r', 2.6);

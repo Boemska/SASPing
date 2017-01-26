@@ -196,6 +196,7 @@ function processData(data, timestamp) {
       if(processedData.apps[data[i][5]] === undefined) {
         processedData.apps[data[i][5]] = {
           data: [{
+            id: data[i][0],
             x: data[i][2] * 1000,
             y: execDuration,
             failed: !data[i][1]
@@ -203,6 +204,7 @@ function processData(data, timestamp) {
         };
       } else {
         processedData.apps[data[i][5]].data.push({
+          id: data[i][0],
           x: data[i][2] * 1000,
           y: execDuration,
           failed: !data[i][1]
@@ -239,7 +241,6 @@ function processData(data, timestamp) {
     processedData.chartData.call[i][2] = processedData.chartData.call[i][2].some(function(val) {
       return val === true;
     });
-    console.log(processedData.chartData.call[i][2])
   }
   processedData.iqr = iqr(iqrData);
 

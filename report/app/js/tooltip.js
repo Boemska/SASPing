@@ -8,6 +8,9 @@ var tooltip = d3.select('#app-table')
                 .attr('class', 'tooltip');
 
 tooltip.append('div')
+       .attr('class', 'request-id');
+
+tooltip.append('div')
        .attr('class', 'time');
 
 tooltip.append('div')
@@ -15,12 +18,10 @@ tooltip.append('div')
 
 
 module.exports = {
-  time: function(t) {
-    tooltip.select('.time').html('<b>Date</b>: ' + timeFormat(t));
-    return this;
-  },
-  duration: function(d) {
-    tooltip.select('.duration').html('<b>Duration</b>: ' + (d / 1000) + ' seconds');
+  setAppChartData: function(id, time, duration) {
+    tooltip.select('.request-id').html('<b>ID</b>: ' + id);
+    tooltip.select('.time').html('<b>Date</b>: ' + timeFormat(time));
+    tooltip.select('.duration').html('<b>Duration</b>: ' + (duration / 1000) + ' seconds');
     return this;
   },
   show: function(top, left) {
