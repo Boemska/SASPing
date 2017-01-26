@@ -172,7 +172,7 @@ function processData(data, timestamp) {
       processedData.chartData.login.push([
         execTime,
         execDuration,
-        !!data[i][1] // is failed
+        !data[i][1] // is failed
       ]);
     } else {
       count.call++;
@@ -185,11 +185,11 @@ function processData(data, timestamp) {
         processedData.chartData.call.push([
           execTime,
           [execDuration],
-          [!!data[i][1]] // is failed
+          [!data[i][1]] // is failed
         ]);
       } else {
         lastExecCallData[1].push(execDuration);
-        lastExecCallData[2].push(!!data[i][1]);
+        lastExecCallData[2].push(!data[i][1]);
       }
 
       //add to apps
@@ -198,14 +198,14 @@ function processData(data, timestamp) {
           data: [{
             x: data[i][2] * 1000,
             y: execDuration,
-            failed: !!data[i][1]
+            failed: !data[i][1]
           }]
         };
       } else {
         processedData.apps[data[i][5]].data.push({
           x: data[i][2] * 1000,
           y: execDuration,
-          failed: !!data[i][1]
+          failed: !data[i][1]
         });
       }
     }
@@ -234,9 +234,12 @@ function processData(data, timestamp) {
 
   for(i = 0; i < processedData.chartData.call.length; i++) {
     processedData.chartData.call[i][1] = avg(processedData.chartData.call[i][1]);
-    processedData.chartData.call[i][2] = processedData.chartData.call[i][2].every(function(val) {
+    // combine isFailed
+    // set call[i][2] = true (failed) if there's at least one failed request
+    processedData.chartData.call[i][2] = processedData.chartData.call[i][2].some(function(val) {
       return val === true;
     });
+    console.log(processedData.chartData.call[i][2])
   }
   processedData.iqr = iqr(iqrData);
 

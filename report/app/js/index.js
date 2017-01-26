@@ -96,7 +96,8 @@ function drawChart(chartData) {
     var chart = nv.models.stackedAreaChart()
       .duration(60)
       .x(function(d) { return d[0]; })
-      .y(function(d) { return d[2] && d[1] || null; })
+      // d[2] - true if failed
+      .y(function(d) { return !d[2] && d[1] || null; })
       .showControls(false)
       .clipEdge(true)
       .showYAxis(false)
