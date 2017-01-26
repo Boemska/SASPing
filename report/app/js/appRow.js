@@ -58,7 +58,10 @@ module.exports = function(ledColor, appName, data) {
 
     // Scale the range of the data
     x.domain(d3.extent(data, function(d, i) { return i; }));
-    y.domain([0, d3.max(data, function(d) { return d.y; })]);
+    y.domain([0, d3.max(data, function(d) {
+      // failed request running more than 10 seconds are ignored
+      return d.failed && d.y > 10000 ? 0 : d.y;
+    })]);
 
     // Add the valueline path.
     svg.append('path')
@@ -71,7 +74,10 @@ module.exports = function(ledColor, appName, data) {
           .enter().append('circle')
           .attr('r', 2.6)
           .attr('cx', function(d, i) { return x(i); })
-          .attr('cy', function(d) { return y(d.y); })
+          .attr('cy', function(d) {
+            // failed request running more than 10 seconds are moved to x axis
+            return d.failed && d.y > 10000 ? y(0) : y(d.y);
+          })
           .style('fill', function(d) {
             return d.failed === true ? 'red' : null;
           })
