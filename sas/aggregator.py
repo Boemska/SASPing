@@ -183,33 +183,41 @@ class Aggregator:
         colSize = len(col)
         if colSize == 0:
             return newCol
-        testsInRun = len(col[0])
+        maxTestsInRun = reduce(lambda x, y: x if x > len(y) else len(y), col, 0)
         divider = 2
 
         while colSize/divider > max:
             divider += 2
 
-        newColSize = colSize/divider
+        newColSize = colSize / divider
 
         for i in range(newColSize):
             run = []
-            for k in range(testsInRun):
-                row = copy.copy(col[i*divider][k]) # use first row and only change it's time and status
+            for k in range(maxTestsInRun):
+                row = None
                 status = 1
                 programExecTimestamps = []
                 execTimestamps = []
                 execDurations = []
                 statuses = []
                 for j in range(divider):
-                    programExecTimestamps.append(col[i*divider+j][k]['program exec timestamp'])
-                    execTimestamps.append(col[i*divider+j][k]['timestamp'])
-                    execDurations.append(float(col[i*divider+j][k]['execution duration (s)']))
-                    statuses.append(col[i*divider+j][k]['status'])
-                row['status'] = '1' if statuses.count('1') >= len(statuses)/2 else None
-                row['program exec timestamp'] = Aggregator.avg(programExecTimestamps)
-                row['timestamp'] = Aggregator.avg(execTimestamps)
-                row['execution duration (s)'] = round(Aggregator.avg(execDurations), 3)
-                run.append(row)
+                    # we can use this value from any row in the same collector run
+                    programExecTimestamps.append(col[i*divider+j][0]['program exec timestamp'])
+                    # check if k index is not out of bounds
+                    # some executions have more tests than others
+                    if len(col[i*divider+j]) > k:
+                        execTimestamps.append(col[i*divider+j][k]['timestamp'])
+                        execDurations.append(float(col[i*divider+j][k]['execution duration (s)']))
+                        statuses.append(col[i*divider+j][k]['status'])
+                        if row == None:
+                            # use any of defined rows for other properties like id, had to login, etc.
+                            row = copy.copy(col[i*divider+j][k])
+                if row != None:
+                    row['status'] = '1' if statuses.count('1') >= len(statuses)/2 else None
+                    row['program exec timestamp'] = Aggregator.avg(programExecTimestamps)
+                    row['timestamp'] = Aggregator.avg(execTimestamps)
+                    row['execution duration (s)'] = round(Aggregator.avg(execDurations), 3)
+                    run.append(row)
             newCol.append(run)
         return newCol
 
