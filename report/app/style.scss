@@ -12,15 +12,17 @@ body {
   padding: 20px;
   background-color: $backCol;
   color: $fontCol;
+  text-align: center;
 }
 
 #content {
+  max-width: 1200px;
+  text-align: left;
+  margin: 0 auto;
   .row {
     display: flex;
-    justify-content: center;
 
     .row-content {
-      max-width: 984px;
       flex-grow: 1;
       display: flex;
 
@@ -91,9 +93,8 @@ body {
   }
 
   #uptime {
-    >div {
-      width: 300px;
-    }
+    flex: none;
+    width: 200px;
   }
 
   #motd {
@@ -116,6 +117,7 @@ body {
           &:last-child {
             flex-grow: 6;
             min-width: 300px;
+            height: 100px;
           }
           svg {
             overflow: visible;
@@ -261,6 +263,10 @@ body {
           min-width: 70px;
         }
       }
+    }
+
+    #uptime {
+      width: auto;
     }
   }
 }

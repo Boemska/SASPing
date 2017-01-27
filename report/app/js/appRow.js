@@ -11,7 +11,7 @@ module.exports = function(ledColor, appName, data) {
   row.append('div')
         .append('p').text(appName);
 
-  var svgWrapper = row.append('div').style('height', '100px');
+  var svgWrapper = row.append('div');
   var svg = svgWrapper.append('svg')
                       .attr('class', 'sparkline');
 

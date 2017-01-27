@@ -32,11 +32,14 @@ worker.onmessage = function(evt) {
 document.addEventListener('DOMContentLoaded', function() {
   worker.postMessage({action: 'domReady'});
 
-  document.querySelectorAll('#time-btns > h3').forEach(function(el) {
-    el.addEventListener('click', function() {
-      setPeriod(el, el.dataset.period);
-    });
-  });
+  var btns = document.querySelectorAll('#time-btns > h3');
+  for(var i = 0; i < btns.length; i++) {
+    (function(ind) {
+      btns[ind].addEventListener('click', function() {
+        setPeriod(btns[ind], btns[ind].dataset.period);
+      });
+    })(i);
+  }
 
   updateMotd();
 });
@@ -44,9 +47,10 @@ document.addEventListener('DOMContentLoaded', function() {
 //dom onclick event handler
 function setPeriod(el, period) {
   if(el) {
-    document.querySelectorAll('.time-btn').forEach(function(btn) {
-      btn.classList.remove('active');
-    });
+    var btns = document.querySelectorAll('#time-btns > h3');
+    for(var i = 0; i < btns.length; i++) {
+      btns[i].classList.remove('active');
+    }
     el.classList.add('active');
   }
 
@@ -82,9 +86,10 @@ function updateData(data) {
   drawChart(data.chartData);
 
   var appTable = document.querySelector('#app-table');
-  document.querySelectorAll('#app-table .row').forEach(function(row) {
-    appTable.removeChild(row);
-  });
+  var domRows = document.querySelectorAll('#app-table .row');
+  for(var i = 0; i < domRows.length; i++) {
+    appTable.removeChild(domRows[i]);
+  }
   for(var key in data.apps) {
     appRow(data.apps[key].health, key, data.apps[key].data);
   }
