@@ -10,14 +10,9 @@
     "tests": [{
       "id": "id",
       "type": "stored_process",
-      "execUrl": "/path",
-      "loginUrl": "",
+      "execPath": "/path",
       "execParams": {
         "_program": "/program/path"
-      },
-      "loginParams": {
-        "username": "username",
-        "password": "password"
       },
       "validations": {"mustContain": [], "cantContain": []}
     }]
