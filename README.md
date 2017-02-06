@@ -26,3 +26,9 @@ e.g. `python test_generator.py 1389970377 3600 6000 10 5 report/build` - will cr
 `python aggregate.py [master csv file] [number of max data points]`
 
 Aggregator will shrink your data if necessary and break to smaller files suitable for the web application. Second command argument is the number of maximum points on graph shown to user. Aggregator will combine multiple collector runs into one, and create files with as many as possible data points, but less than the second argument
+
+### Deploy
+
+Run `npm run release` from `report/` folder to build web application. It will create `report/dist` folder which should be copied to web accessible destination.
+
+Add cron jobs to run collector and aggregator scripts. Both scripts should create/save files to the web app path.
