@@ -29,9 +29,8 @@
     "pack:dev:index": "webpack -d --output-public-path js/ --watch app/js/index.js build/js/index.js",
     "pack:dev": "parallelshell 'npm run pack:dev:index' 'npm run pack:dev:vendors'",
     "copy:index.html": "copyfiles -f app/index.html build",
-    "copy:csv": "copyfiles -f app/sasping_data.csv build",
     "copy:motd": "copyfiles -f app/motd.txt build",
-    "copy": "parallelshell 'npm run copy:index.html' 'npm run copy:csv' 'npm run copy:motd'",
+    "copy": "parallelshell 'npm run copy:index.html' 'npm run copy:motd'",
     "dev": "npm run mkbuild; parallelshell 'npm run pack:dev' 'npm run copy' 'npm start'"
   },
   "author": "bojan@boemskats.com",
