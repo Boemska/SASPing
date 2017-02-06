@@ -10,6 +10,5 @@ class Test(Base):
         ('validations', False)
     ]
 
-    def __init(self, data):
-        print(data)
+    def __init__(self, data):
         super(Test, self).__init__(data)
