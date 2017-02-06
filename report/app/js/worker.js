@@ -245,7 +245,8 @@ function processData(data, timestamp) {
   processedData.iqr = iqr(iqrData);
 
   if(count.total !== 0) {
-    processedData.uptime = ((count.total - count.failed) / count.total).toFixed(2);
+    // toFixed(2) will round the number
+    processedData.uptime = ((count.total - count.failed) / count.total).toString().substr(0, 4);
     if(count.call) {
       processedData.avgResponse = Math.round(time.call / count.call);
     }
