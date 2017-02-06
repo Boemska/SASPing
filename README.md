@@ -7,8 +7,9 @@ Stateless SAS program runner via web interface
 * `pip install -r requirements.txt`
 * `cd ./report && npm install`
 * `npm run dev` - build and run (it will watch file changes and build your js and sass)
-* `cd ..`
-* `test_generator.py 1477324439 3600 60000 10 5 report/build` - generate some dummy data
+
+Open another terminal session in sasping path
+* `python test_generator.py 1477324439 3600 60000 10 5 report/build` - generate some dummy data
 * `python aggregate.py report/build/sasping_data.csv 100` - run aggregator to shring the generated data
 * open http://localhost:8000/build/
 
