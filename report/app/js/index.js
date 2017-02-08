@@ -144,6 +144,9 @@ function drawChart(chartData) {
 
 function setGauge(el, percent) {
   var i = 0;
+  if(el.dataset['gaugeInterval']) {
+    clearInterval(el.dataset['gaugeInterval']);
+  }
   var interval = setInterval(function() {
     try {
       if(percent !== null) {
@@ -152,9 +155,11 @@ function setGauge(el, percent) {
         el.style['background-image'] = 'linear-gradient('+ (deg <= 180 ? deg+90 : deg-90) +'deg, transparent 50%, '+(deg <= 180 ? gaugeCol : mainCol)+' 50%),linear-gradient(90deg, '+gaugeCol+' 50%, transparent 50%)';
         if(i++ >= percent) {
           clearInterval(interval);
+          el.dataset['gaugeInterval'] = interval;
         }
       } else {
         clearInterval(interval);
+        el.dataset['gaugeInterval'] = interval;
         el.querySelector('.prec').innerHTML = '-';
         el.style['background-image'] = 'linear-gradient(90deg, transparent 50%, '+gaugeCol+' 50%),linear-gradient(90deg, '+gaugeCol+' 50%, transparent 50%)';
       }
@@ -163,6 +168,7 @@ function setGauge(el, percent) {
       throw e;
     }
   }, 10);
+  el.dataset['gaugeInterval'] = interval;
 }
 
 function updateMotd() {
