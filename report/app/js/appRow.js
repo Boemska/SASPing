@@ -53,7 +53,8 @@ module.exports = function(ledColor, appName, data) {
     var valueline = d3.svg.line()
         .x(function(d, i) { return x(i); })
         .y(function(d) { return y(d.y); })
-        .defined(function(d) { return !d.failed; });
+        .defined(function(d) { return !d.failed; })
+        .interpolate('monotone');
 
 
     // Scale the range of the data
