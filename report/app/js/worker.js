@@ -7,6 +7,13 @@ self.dataReady = false;
 self.pendingSend = false;
 self.initialDataSent = false;
 
+self.processedData = {
+  day: null,
+  week: null,
+  month: null,
+  all: null
+};
+
 function update(callback) {
   Papa.parse('../sasping_data_latest.csv', {
     download: true,
@@ -36,7 +43,7 @@ update(function() {
   if(!self.initialDataSent && self.pendingSend) {
     postMessage({
       action: 'update',
-      data: self.processedData['day']
+      data: self.processedData.day
     });
     self.initialDataSent = true;
     self.pendingSend = false;
@@ -64,17 +71,10 @@ self.onmessage = function(evt) {
   }
 };
 
-self.processedData = {
-  'day': null,
-  'week': null,
-  'month': null,
-  'all': null
-};
-
 function updateLatest(data) {
   var now = new Date();
   var dayOldTimestamp = new Date().setDate(now.getDate() - 1);
-  self.processedData['day'] = processData(data, dayOldTimestamp);
+  self.processedData.day = processData(data, dayOldTimestamp);
 }
 
 function updateWeek() {
@@ -90,7 +90,7 @@ function updateWeek() {
     complete: function(papaParsedObj) {
       var now = new Date();
       var weekldTimestamp = new Date().setDate(now.getDate() - 7);
-      self.processedData['week'] = processData(papaParsedObj.data, weekldTimestamp);
+      self.processedData.week = processData(papaParsedObj.data, weekldTimestamp);
     }
   });
 }
@@ -107,7 +107,7 @@ function updateMonth() {
     complete: function(papaParsedObj) {
       var now = new Date();
       var monthOldTimestamp = new Date().setMonth(now.getMonth() - 1);
-      self.processedData['month'] = processData(papaParsedObj.data, monthOldTimestamp);
+      self.processedData.month = processData(papaParsedObj.data, monthOldTimestamp);
     }
   });
 }
@@ -122,7 +122,7 @@ function updateAll() {
       });
     },
     complete: function(papaParsedObj) {
-      self.processedData['all'] = processData(papaParsedObj.data, 0);
+      self.processedData.all = processData(papaParsedObj.data, 0);
     }
   });
 }
