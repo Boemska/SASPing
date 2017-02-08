@@ -67,8 +67,19 @@ body {
       justify-content: flex-end;
 
       >* {
+        position: relative;
         cursor: pointer;
         margin-left: 20px;
+
+        &::before{
+          content: '';
+          position: absolute;
+          bottom: -5px;
+          width: 0px;
+          height: 3px;
+          transition: transform 0.2s ease-in-out, width 0.2s ease-in-out;
+          transform: translate(100%, 0);
+        }
       }
       >*:first-child {
         margin-left: 0;
@@ -76,6 +87,11 @@ body {
       >.active {
         cursor: default;
         color: $mainCol;
+      }
+      >.active::before {
+        background-color: $mainCol;
+        width: 100%;
+        transform: translate(0, 0);
       }
     }
   }
