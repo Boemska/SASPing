@@ -198,6 +198,7 @@ function processData(data, timestamp) {
           data: [{
             id: data[i][0],
             x: data[i][2] * 1000,
+            execTime: data[i][6] * 1000,
             y: execDuration,
             failed: !data[i][1]
           }]
@@ -206,6 +207,7 @@ function processData(data, timestamp) {
         processedData.apps[data[i][5]].data.push({
           id: data[i][0],
           x: data[i][2] * 1000,
+          execTime: data[i][6] * 1000,
           y: execDuration,
           failed: !data[i][1]
         });
@@ -232,6 +234,30 @@ function processData(data, timestamp) {
     } else {
       processedData.apps[appName].health = 'green';
     }
+
+    // group app data by execution
+    var curAppData = processedData.apps[appName].data;
+    var lastInd = 0;
+    processedData.apps[appName].dataGroupedByExec = [{
+      x: curAppData[0].x,
+      y: [curAppData[0].y]
+    }];
+    for(i = 1; i < curAppData.length; i++) {
+      lastInd = processedData.apps[appName].dataGroupedByExec.length - 1;
+      // if they are not equal, add new row and replace y array with average value
+      if(curAppData[i-1].execTime !== curAppData[i].execTime) {
+        processedData.apps[appName].dataGroupedByExec[lastInd].y = avg(processedData.apps[appName].dataGroupedByExec[lastInd].y);
+        processedData.apps[appName].dataGroupedByExec.push({
+          x: curAppData[i].x,
+          y: [curAppData[i].y]
+        });
+      } else {
+        processedData.apps[appName].dataGroupedByExec[lastInd].y.push(curAppData[i].y);
+      }
+    }
+    // replace last y array with average value
+    lastInd = processedData.apps[appName].dataGroupedByExec.length - 1;
+    processedData.apps[appName].dataGroupedByExec[lastInd].y = avg(processedData.apps[appName].dataGroupedByExec[lastInd].y);
   }
 
   for(i = 0; i < processedData.chartData.call.length; i++) {

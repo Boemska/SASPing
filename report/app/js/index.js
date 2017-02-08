@@ -91,7 +91,8 @@ function updateData(data) {
     appTable.removeChild(domRows[i]);
   }
   for(var key in data.apps) {
-    appRow(data.apps[key].health, key, data.apps[key].data);
+    var app = data.apps[key];
+    appRow(app.health, key, app.data, app.dataGroupedByExec);
   }
 }
 

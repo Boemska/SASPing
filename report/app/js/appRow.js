@@ -1,6 +1,6 @@
 /* eslint-env node, browser */
 /* globals d3 */
-module.exports = function(ledColor, appName, data) {
+module.exports = function(ledColor, appName, data, groupedByExecData) {
   var tooltip = require('./tooltip.js');
 
   var row = d3.select('#app-table')
@@ -49,11 +49,17 @@ module.exports = function(ledColor, appName, data) {
         .tickFormat(function(d) { return timeFormat(new Date(data[d].x)); })
         .orient('bottom');
 
+    // diff in array size  -  all data / grouped by exec data
+    var groupedDIffSize = data.length / groupedByExecData.length;
     // Define the line
     var valueline = d3.svg.line()
-        .x(function(d, i) { return x(i); })
+        .x(function(d, i) {
+          // i * groupedDIffSize will be always smaller than data.length-1 because of the zero based array
+          // substracting x((groupedByExecData.length - 1) * groupedDIffSize) / 2 will center it
+          return x(i * groupedDIffSize) - x((groupedByExecData.length - 1) * groupedDIffSize) / 2;
+        })
         .y(function(d) { return y(d.y); })
-        .defined(function(d) { return !d.failed; })
+        // .defined(function(d) { return !d.failed; })
         .interpolate('monotone');
 
 
@@ -67,7 +73,7 @@ module.exports = function(ledColor, appName, data) {
     // Add the valueline path.
     svg.append('path')
         .attr('class', 'line')
-        .attr('d', valueline(data));
+        .attr('d', valueline(groupedByExecData));
 
     // Add the scatterplot
     svg.selectAll('dot')
