@@ -265,7 +265,7 @@ function processData(data, timestamp) {
       return val === true;
     });
   }
-  processedData.iqr = iqr(iqrData);
+  processedData.iqr = Math.round(iqr(iqrData));
 
   if(count.total !== 0) {
     // toFixed(2) will round the number
