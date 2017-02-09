@@ -40,7 +40,7 @@ module.exports = function(ledColor, appName, data, groupedByExecData) {
 
 
     // Set the ranges
-    var x = d3.scale.linear().range([svgRect.width - 15, 0]);
+    var x = d3.scale.linear().range([0, svgRect.width - 15]);
     var y = d3.scale.linear().range([svgRect.height - 15, 0]);
 
     // Define the axes
