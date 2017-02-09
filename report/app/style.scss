@@ -94,6 +94,19 @@ body {
         transform: translate(0, 0);
       }
     }
+
+    #brand {
+      img {
+        display: inline;
+        height: 40px;
+        vertical-align: bottom;
+        margin-right: 20px;
+      }
+      h1 {
+        display: inline;
+        vertical-align: middle;
+      }
+    }
   }
 
   .center-vert {
