@@ -46,7 +46,7 @@ module.exports = function(ledColor, appName, data, groupedByExecData) {
     // Define the axes
     var xAxis = d3.svg.axis().scale(x)
         .ticks(2)
-        .tickFormat(function(d) { return timeFormat(new Date(data[d].x)); })
+        .tickFormat(function(d) { return timeFormat(new Date(d)); })
         .orient('bottom');
 
     // diff in array size  -  all data / grouped by exec data
@@ -56,7 +56,8 @@ module.exports = function(ledColor, appName, data, groupedByExecData) {
         .x(function(d, i) {
           // i * groupedDIffSize will be always smaller than data.length-1 because of the zero based array
           // substracting x((groupedByExecData.length - 1) * groupedDIffSize) / 2 will center it
-          return x(i * groupedDIffSize) - x((groupedByExecData.length - 1) * groupedDIffSize) / 2;
+          // return x(i * groupedDIffSize) - x((groupedByExecData.length - 1) * groupedDIffSize) / 2;
+          return x(d.x)
         })
         .y(function(d) { return y(d.y); })
         // .defined(function(d) { return !d.failed; })
@@ -64,7 +65,7 @@ module.exports = function(ledColor, appName, data, groupedByExecData) {
 
 
     // Scale the range of the data
-    x.domain(d3.extent(data, function(d, i) { return i; }));
+    x.domain(d3.extent(data, function(d) { return d.x; }));
     y.domain([0, d3.max(data, function(d) {
       // failed request running more than 10 seconds are ignored
       return d.failed && d.y > 10000 ? 0 : d.y;
@@ -80,7 +81,7 @@ module.exports = function(ledColor, appName, data, groupedByExecData) {
         .data(data)
           .enter().append('circle')
           .attr('r', 2.6)
-          .attr('cx', function(d, i) { return x(i); })
+          .attr('cx', function(d) { return x(d.x); })
           .attr('cy', function(d) {
             // failed request running more than 10 seconds are moved to x axis
             return d.failed && d.y > 10000 ? y(0) : y(d.y);
