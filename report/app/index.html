@@ -8,6 +8,16 @@
     <link rel="stylesheet" href="../node_modules/nvd3/build/nv.d3.css">
     <link rel="stylesheet" href="../build/style.css">
     <!-- endbuild -->
+    <script type="text/javascript">
+      try {
+        window.worker = new Worker('js/worker.js');
+      } catch(e) {
+        if(e instanceof ReferenceError) {
+          alert('Your browser does not support web workers.');
+        }
+        throw e;
+      }
+    </script>
     <script defer src="js/vendors.js" charset="utf-8" type="text/javascript"></script>
     <script src="js/index.js" charset="utf-8" type="text/javascript"></script>
   </head>

@@ -4,21 +4,9 @@
 var mainCol = '#7ab648';
 var gaugeCol = '#ddd';
 
-var worker;
-
 var appRow = require('./appRow.js');
 
-var MyWorker = require('worker-loader!./worker.js');
-try {
-  worker = new MyWorker();
-} catch(e) {
-  if(e instanceof ReferenceError) {
-    alert('Your browser does not support web workers.');
-  }
-  throw e;
-}
-
-worker.onmessage = function(evt) {
+window.worker.onmessage = function(evt) {
   switch(evt.data.action) {
     case 'error':
       alert(evt.data.msg);
@@ -30,7 +18,7 @@ worker.onmessage = function(evt) {
 };
 
 document.addEventListener('DOMContentLoaded', function() {
-  worker.postMessage({action: 'domReady'});
+  window.worker.postMessage({action: 'domReady'});
 
   var btns = document.querySelectorAll('#time-btns > h3');
   for(var i = 0; i < btns.length; i++) {
@@ -54,7 +42,7 @@ function setPeriod(el, period) {
     el.classList.add('active');
   }
 
-  worker.postMessage({
+  window.worker.postMessage({
     action: 'getData',
     period: period
   });
