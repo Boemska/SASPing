@@ -25,7 +25,10 @@ function update(callback) {
       });
     },
     complete: function(papaParsedObj) {
-      updateLatest(papaParsedObj.data);
+      var now = new Date();
+      var dayOldTimestamp = new Date().setDate(now.getDate() - 1);
+      self.processedData.day = processData(papaParsedObj.data, dayOldTimestamp);
+
       if(callback) {
         callback();
       }
@@ -50,7 +53,9 @@ update(function() {
   }
 });
 
-setTimeout(update, 10 * 60 * 1000);
+// retrieve all time periods data and process it in web worker every 10 minutes
+// not sending update messages to UI - it's updated when time period is changed
+setInterval(update, 10 * 60 * 1000);
 
 self.onmessage = function(evt) {
   switch(evt.data.action) {
@@ -70,12 +75,6 @@ self.onmessage = function(evt) {
       break;
   }
 };
-
-function updateLatest(data) {
-  var now = new Date();
-  var dayOldTimestamp = new Date().setDate(now.getDate() - 1);
-  self.processedData.day = processData(data, dayOldTimestamp);
-}
 
 function updateWeek() {
   Papa.parse('../sasping_data_week.csv', {
