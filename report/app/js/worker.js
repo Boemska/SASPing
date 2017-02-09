@@ -218,14 +218,11 @@ function processData(data, timestamp) {
 
   //set app health status
   for(var appName in processedData.apps) {
-    i = data.length - 1;
-    var lastExecTime = Number(data[i][6]);
+    var lastExecTime = processedData.apps[appName].data[0].execTime;
     var lastExecStatuses = [];
-    while(lastExecTime === Number(data[i][6])) {
-      if(appName === data[i][5]) {
-        lastExecStatuses.push(data[i][1]);
-      }
-      i--;
+    i = 0;
+    while(lastExecTime === processedData.apps[appName].data[i].execTime) {
+      lastExecStatuses.push(!processedData.apps[appName].data[i++].failed);
     }
     if(lastExecStatuses.every(failedCheckFn)) {
       processedData.apps[appName].health = 'red';
