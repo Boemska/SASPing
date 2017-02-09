@@ -95,7 +95,8 @@ function drawChart(chartData) {
       .showControls(false)
       .clipEdge(true)
       .showYAxis(false)
-      .style('stream-center');
+      .style('stream-center')
+      .margin({left: 25, right: 25});
 
     if(chartData.login.length > 0 && chartData.call.length > 0) {
       //the array is reverse - last to first
