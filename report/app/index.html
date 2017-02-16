@@ -12,10 +12,15 @@
       try {
         window.worker = new Worker('js/worker.js');
       } catch(e) {
-        if(e instanceof ReferenceError) {
-          alert('Your browser does not support web workers.');
+        window.worker = null;
+        console.log('The browser does not support Web Workers');
+        console.log('Using fallback method');
+        var script = document.createElement('script');
+        script.src = 'js/worker.js';
+        script.onload = function() {
+          window.workerFallbackLoaded = true;
         }
-        throw e;
+        document.querySelector('head').appendChild(script);
       }
     </script>
     <script defer src="js/vendors.js" charset="utf-8" type="text/javascript"></script>

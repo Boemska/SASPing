@@ -1,5 +1,37 @@
 /* eslint no-fallthrough: off */
 /* eslint-env node, browser */
+var postMessage;
+var listenerFn = function(evt) {
+  switch(evt.data && evt.data.action || evt.action) {
+    case 'domReady':
+      // no break - we want it to go to the next case
+    case 'getData':
+      //not sending the message if there are requests in queue
+      if(!self.pendingSend && self.processedData[evt.data && evt.data.period || evt.period || 'day']) {
+        postMessage({
+          action: 'update',
+          wsData: self.processedData[evt.data && evt.data.period || evt.period || 'day']
+        });
+        self.pendingSend = false;
+      } else {
+        self.pendingSend = true;
+      }
+      break;
+  }
+};
+
+if(typeof window !== 'undefined' && window === self) {
+  window.worker = {
+    postMessage: listenerFn
+  };
+  postMessage = function(simulatedEvent) {
+    window.main.call(simulatedEvent);
+  };
+} else {
+  postMessage = self.postMessage;
+  self.onmessage = listenerFn;
+}
+
 var iqr = require('compute-iqr');
 var Papa = require('papaparse');
 
@@ -15,7 +47,7 @@ self.processedData = {
 };
 
 function update(callback) {
-  Papa.parse('../sasping_data_latest.csv', {
+  Papa.parse(typeof window !== 'undefined' ? 'sasping_data_latest.csv' : '../sasping_data_latest.csv', {
     download: true,
     error: function(err) {
       var errMsg = typeof err === 'string' ? err : (err.message || 'no message');
@@ -46,7 +78,7 @@ update(function() {
   if(!self.initialDataSent && self.pendingSend) {
     postMessage({
       action: 'update',
-      data: self.processedData.day
+      wsData: self.processedData.day
     });
     self.initialDataSent = true;
     self.pendingSend = false;
@@ -57,27 +89,8 @@ update(function() {
 // not sending update messages to UI - it's updated when time period is changed
 setInterval(update, 10 * 60 * 1000);
 
-self.onmessage = function(evt) {
-  switch(evt.data.action) {
-    case 'domReady':
-      // no break - we want it to go to the next case
-    case 'getData':
-      //not sending the message if there are requests in queue
-      if(!self.pendingSend && self.processedData[evt.data.period || 'day']) {
-        postMessage({
-          action: 'update',
-          data: self.processedData[evt.data.period || 'day']
-        });
-        self.pendingSend = false;
-      } else {
-        self.pendingSend = true;
-      }
-      break;
-  }
-};
-
 function updateWeek() {
-  Papa.parse('../sasping_data_week.csv', {
+  Papa.parse(typeof window !== 'undefined' ? 'sasping_data_week.csv' : '../sasping_data_week.csv', {
     download: true,
     error: function(err) {
       var errMsg = typeof err === 'string' ? err : (err.message || 'no message');
@@ -94,7 +107,7 @@ function updateWeek() {
   });
 }
 function updateMonth() {
-  Papa.parse('../sasping_data_month.csv', {
+  Papa.parse(typeof window !== 'undefined' ? 'sasping_data_month.csv' : '../sasping_data_month.csv', {
     download: true,
     error: function(err) {
       var errMsg = typeof err === 'string' ? err : (err.message || 'no message');
@@ -111,7 +124,7 @@ function updateMonth() {
   });
 }
 function updateAll() {
-  Papa.parse('../sasping_data_allTime.csv', {
+  Papa.parse(typeof window !== 'undefined' ? 'sasping_data_allTime.csv' : '../sasping_data_allTime.csv', {
     download: true,
     error: function(err) {
       var errMsg = typeof err === 'string' ? err : (err.message || 'no message');

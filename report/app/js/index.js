@@ -6,19 +6,36 @@ var gaugeCol = '#ddd';
 
 var appRow = require('./appRow.js');
 
-window.worker.onmessage = function(evt) {
-  switch(evt.data.action) {
+var listenerFn = function(evt) {
+  switch(evt.data && evt.data.action || evt.action) {
     case 'error':
-      alert(evt.data.msg);
+      alert(evt.data && evt.data.msg || evt.data);
       break;
     case 'update':
-      updateData(evt.data.data);
+      updateData(evt.data && evt.data.wsData || evt.wsData);
       break;
   }
 };
+if(window.worker === null) {
+  // no web worker support - fallback method
+  window.main = {
+    call: listenerFn
+  };
+} else {
+  window.worker.onmessage = listenerFn;
+}
 
 document.addEventListener('DOMContentLoaded', function() {
-  window.worker.postMessage({action: 'domReady'});
+  try {
+    window.worker.postMessage({action: 'domReady'});
+  } catch(e) {
+    var interval = setInterval(function() {
+      if(window.workerFallbackLoaded) {
+        clearInterval(interval);
+        window.worker.postMessage({action: 'domReady'});
+      }
+    }, 10);
+  }
 
   var btns = document.querySelectorAll('#time-btns > h3');
   for(var i = 0; i < btns.length; i++) {
