@@ -13,7 +13,7 @@ from sas.response import Response
 
 def main():
     try:
-        opts, args = getopt.getopt(sys.argv[1:], 's:o:h', ['settings', 'output', 'help'])
+        opts, args = getopt.getopt(sys.argv[1:], 's:o:h', ['settings=', 'output=', 'help'])
     except getopt.GetoptError:
         sys.stdout.write('\npython main.py -s [settings file path] -o [output dir]\n')
         sys.stdout.write('\nRun `python main.py --help` or check the Readme file\n\n')
