@@ -15,7 +15,8 @@ def main():
     try:
         opts, args = getopt.getopt(sys.argv[1:], 's:o:h', ['settings', 'output', 'help'])
     except getopt.GetoptError:
-        print 'python main.py -s [settings file path] -o [output dir]'
+        sys.stdout.write('\npython main.py -s [settings file path] -o [output dir]\n')
+        sys.stdout.write('\nRun `python main.py --help` or check the Readme file\n\n')
         sys.exit(2)
 
     for opt, arg in opts:
@@ -29,6 +30,12 @@ def main():
             settingsPath = arg
         elif opt in ('-o', '--output'):
             outputPath = arg
+
+    if len(opts) < 2:
+        sys.stdout.write('\npython main.py -s [settings file path] -o [output dir]\n')
+        sys.stdout.write('\nRun `python main.py --help` or check the Readme file\n\n')
+        sys.exit(2)
+
     try:
         config = json.load(open(settingsPath))
     except ValueError as e:
