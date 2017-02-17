@@ -1,18 +1,48 @@
 #!/usr/bin/python
 
 import sys
+import getopt
 import time
 import csv
 import os
 from random import getrandbits, randint
 from sas.response import Response
 
-fromTimestamp = int(sys.argv[1])
-interval      = int(sys.argv[2])
-maximum       = int(sys.argv[3])
-testsPerRun   = int(sys.argv[4])
-appsCount     = int(sys.argv[5])
-outputPath    = sys.argv[6]
+try:
+    opts, args = getopt.getopt(sys.argv[1:], 's:i:m:t:a:o:h', ['start=', 'interval=', 'maximum=', 'tests=', 'apps=', 'output=', 'help'])
+except getopt.GetoptError:
+    sys.stdout.write('\npython test_generator.py -s [start timestamp] -i [interval] -m [maximum] -t [number of tests] -a [number of apps] -o [output dir]\n')
+    sys.stdout.write('\nRun `python test_generator.py --help` or check the Readme file\n\n')
+    sys.exit(2)
+
+for opt, arg in opts:
+    if opt in ('-h', '--help'):
+        sys.stdout.write('\nThe script will generate tests every X seconds based on the interval argument starting from S timestamp.\n')
+        sys.stdout.write('\nMandatory arguments:\n')
+        sys.stdout.write('\t-s, --start        Start timestamp. Generated data will start from this timestamp.\n')
+        sys.stdout.write('\t-i, --interval     Interval in seconds between consecutive tests.\n')
+        sys.stdout.write('\t-m, --maximum      Maximum number of tests. The script will stop if the number of tests exceeds this argument.\n')
+        sys.stdout.write('\t-t, --tests        Number of tests in one round (an execution of the collector script).\n')
+        sys.stdout.write('\t-t, --apps         Number of dummy applications.\n')
+        sys.stdout.write('\t-o, --output       Output directory (sasping_data.csv file will be saved there).\n')
+        sys.exit(0)
+    elif opt in ('-s', '--start'):
+        fromTimestamp = int(arg)
+    elif opt in ('-i', '--interval'):
+        interval = int(arg)
+    elif opt in ('-m', '--maximum'):
+        maximum = int(arg)
+    elif opt in ('-t', '--tests'):
+        testsPerRun = int(arg)
+    elif opt in ('-a', '--apps'):
+        appsCount = int(arg)
+    elif opt in ('-o', '--output'):
+        outputPath = int(arg)
+
+if len(opts) < 6:
+    sys.stdout.write('\npython test_generator.py -s [start timestamp] -i [interval] -m [maximum] -t [number of tests] -a [number of apps] -o [output dir]\n')
+    sys.stdout.write('\nRun `python test_generator.py --help` or check the Readme file\n\n')
+    sys.exit(2)
 
 currentTimestamp = int(time.time())
 run = 0

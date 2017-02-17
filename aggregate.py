@@ -1,14 +1,34 @@
 #!/usr/bin/python
 
 import sys
+import getopt
 import os
 import csv
 
 from sas.response import Response
 from sas.aggregator import Aggregator
 
-inFilePath = sys.argv[1]
-maxDatapoints = int(sys.argv[2]) if len(sys.argv) > 2 else 200
+try:
+    opts, args = getopt.getopt(sys.argv[1:], 'i:m:h', ['input=', 'maximum=', 'help'])
+except getopt.GetoptError:
+    sys.stdout.write('\npython aggregate.py -i [input file path] -m [maximum number of datapoints]\n')
+    sys.stdout.write('\nRun `python aggregate.py --help` or check the Readme file\n\n')
+    sys.exit(2)
+
+maxDatapoints = 100
+
+for opt, arg in opts:
+    if opt in ('-h', '--help'):
+        sys.stdout.write('\nThe script will read master CSV file and create 4 aggregated file for each data period.\n')
+        sys.stdout.write('\nMandatory arguments:\n')
+        sys.stdout.write('\t-i, --input        Input master file to be aggregated.\n')
+        sys.stdout.write('\nOptional arguments:\n')
+        sys.stdout.write('\t-m, --maximum      Maximum number of datapoints per period displayed in chart.\n')
+        sys.exit(0)
+    elif opt in ('-i', '--input'):
+        inFilePath = arg
+    elif opt in ('-m', '--maximum'):
+        maxDatapoints = int(arg)
 
 csvStrPos = inFilePath.find('.csv');
 latestFilePath = inFilePath[:csvStrPos] + '_latest.csv'
