@@ -21,16 +21,24 @@ def run(config):
     try:
         startTime = time.time()
         loginStatus = login()
-        loginTime = time.time() - startTime
-        loginResponse = Response('sasping login request', 'success', timestamp=time.time(), execTime=loginTime)
         if not(loginStatus):
-            raise RuntimeError('Failed to login.')
+            loginResponse = Response('sasping login request', 'fail', 'Failed to login.')
+        else:
+            loginResponse = Response('sasping login request', 'success')
     except requests.exceptions.Timeout as err:
         loginResponse = Response('sasping login request', 'fail', message='Request timeout')
-    except Exception as err:
-        loginResponse = Response('sasping login request', 'fail', message=str(err))
     finally:
         loginResponse.setTime(startTime, time.time() - startTime)
+        loginResponse.setProgramExecTime(programExecTime)
+        if loginResponse.status == 'fail':
+            return [dict(loginResponse)]
+
+    # get request to do sas security check
+    # this request is not logged to csv file
+    try:
+        _session.get(_settings.get('hostUrl') + Test(_settings.get('applications')[0]['tests'][0]).get('execPath'))
+    except Exception:
+        raise RuntimeError('SAS security check request failed')
 
     outData.append(dict(loginResponse.setProgramExecTime(programExecTime)))
     applications = _settings.get('applications')
@@ -44,6 +52,8 @@ def run(config):
             except requests.exceptions.ConnectionError:
                 response = Response(test.get('id'), 'fail', message='Name or service not known')
             except requests.exceptions.RequestException as e:
+                response = Response(test.get('id'), 'fail', message=str(e))
+            except Exception as e:
                 response = Response(test.get('id'), 'fail', message=str(e))
             finally:
                 response.setTime(startTime, time.time() - startTime)
