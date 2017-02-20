@@ -13,11 +13,25 @@ import functions
 _session = requests.Session()
 _settings = None
 
-def run(config):
-    global _settings
+# do nothing, just create function because of the interface
+def _logger(s):
+    pass
+
+def run(config, debug):
+    global _settings, _logger
     programExecTime = time.time()
     outData = []
     _settings = Settings(config)
+
+    if debug == True:
+        _logger = sys.stdout.write
+    elif type(debug) == str:
+        try:
+            logFile = open(debug, "a")
+            _logger = logFile.write
+        except:
+            print('\nCannot open log file. Debug flag ignored.')
+
     try:
         startTime = time.time()
         loginStatus = login()
@@ -60,7 +74,11 @@ def run(config):
                 response.setAppName(app['name'])
                 outData.append(dict(response.setProgramExecTime(programExecTime)))
 
-    return outData
+    try:
+        logFile.close()
+    finally:
+        return outData
+
 
 def login():
     req = _session.get(_settings.getLoginUrl(), timeout=30)
@@ -83,6 +101,18 @@ def _login(hiddenParams):
 
 def call(test, afterLogin=False):
     req = _session.post(_settings.get('hostUrl') + test.get('execPath'), test.get('execParams'), timeout=30)
+    debugStr = '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n'
+    debugStr += req.request.method + '\n'
+    debugStr += req.url + '\n\n'
+    debugStr += 'Request headers: ' + str(req.request.headers) + '\n\n'
+    debugStr += 'Params: ' + req.request.body + '\n\n'
+    debugStr += '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n'
+    debugStr += 'Response status code: ' + str(req.status_code) + '\n\n'
+    debugStr += 'Cookies: ' + str(_session.cookies.get_dict()) + '\n\n'
+    debugStr += 'Response headers: ' + str(req.headers) + '\n\n'
+    debugStr += req.text + '\n'
+
+    _logger(debugStr)
 
     if req.status_code != 200:
         return Response(test.get('id'), 'fail', message='Request failed - status ' + str(req.status_code))
