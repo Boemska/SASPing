@@ -205,24 +205,26 @@ function processData(data, timestamp) {
       }
 
       //add to apps
-      if(processedData.apps[data[i][5]] === undefined) {
-        processedData.apps[data[i][5]] = {
-          data: [{
+      if(data[i][5]) {
+        if(processedData.apps[data[i][5]] === undefined) {
+          processedData.apps[data[i][5]] = {
+            data: [{
+              id: data[i][0],
+              x: data[i][2] * 1000,
+              execTime: data[i][6] * 1000,
+              y: execDuration,
+              failed: !data[i][1]
+            }]
+          };
+        } else {
+          processedData.apps[data[i][5]].data.push({
             id: data[i][0],
             x: data[i][2] * 1000,
             execTime: data[i][6] * 1000,
             y: execDuration,
             failed: !data[i][1]
-          }]
-        };
-      } else {
-        processedData.apps[data[i][5]].data.push({
-          id: data[i][0],
-          x: data[i][2] * 1000,
-          execTime: data[i][6] * 1000,
-          y: execDuration,
-          failed: !data[i][1]
-        });
+          });
+        }
       }
     }
     iqrData.push(execDuration);
