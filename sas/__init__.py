@@ -51,7 +51,7 @@ def run(config, debug):
     # this request is not logged to csv file
     try:
         _session.get(_settings.get('hostUrl') + Test(_settings.get('applications')[0]['tests'][0]).get('execPath'))
-    except Exception:
+    except requests.exceptions.RequestException:
         raise RuntimeError('SAS security check request failed')
 
     outData.append(dict(loginResponse.setProgramExecTime(programExecTime)))

@@ -4,8 +4,11 @@ class Base(object):
             self._validateKey(key)
 
         for key in self._keys:
-            if key[1] and not(self._dotNotationGet(key[0], d)):
-                raise KeyError('Missing required config property "{0}" in config with id "{1}"'.format(key[0], d['id']))
+            if key[1]:
+                if self._dotNotationGet(key[0], d) == None:
+                    raise KeyError("Missing required '{0}' property".format(key[0]))
+                elif self._dotNotationGet(key[0], d) == '':
+                    raise ValueError("Property '{0}' cannot be empty".format(key[0]))
 
         self._data = d
 
