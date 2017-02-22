@@ -60,7 +60,7 @@ while(fromTimestamp + (interval * run) < currentTimestamp and (maximum > 0 and r
     )
     out.append(dict(response))
 
-    for i in range(testsPerRun-1):
+    for i in range(testsPerRun):
         testStatus = 'success' if randint(0, 9) != 9  else 'fail'
         failGroup = 'mustContain' if bool(getrandbits(1)) else 'cantContain'
         response = Response(
