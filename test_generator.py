@@ -23,7 +23,7 @@ for opt, arg in opts:
         sys.stdout.write('\t-i, --interval     Interval in seconds between consecutive tests.\n')
         sys.stdout.write('\t-m, --maximum      Maximum number of tests. The script will stop if the number of tests exceeds this argument.\n')
         sys.stdout.write('\t-t, --tests        Number of tests in one round (an execution of the collector script).\n')
-        sys.stdout.write('\t-t, --apps         Number of dummy applications.\n')
+        sys.stdout.write('\t-a, --apps         Number of dummy applications.\n')
         sys.stdout.write('\t-o, --output       Output directory (sasping_data.csv file will be saved there).\n')
         sys.exit(0)
     elif opt in ('-s', '--start'):
@@ -37,7 +37,7 @@ for opt, arg in opts:
     elif opt in ('-a', '--apps'):
         appsCount = int(arg)
     elif opt in ('-o', '--output'):
-        outputPath = int(arg)
+        outputPath = arg
 
 if len(opts) < 6:
     sys.stdout.write('\npython test_generator.py -s [start timestamp] -i [interval] -m [maximum] -t [number of tests] -a [number of apps] -o [output dir]\n')

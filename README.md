@@ -28,7 +28,9 @@ This project targets Red Hat Enterprise Linux 6 as a minimum, which means Python
 
 ### Running the Collector script
 
-`python main.py [settings json file path] [output dir]`
+`python main.py -s [settings json file path] -o [output dir]`
+or
+`python main.py --settings=[settings json file path] --output=[output dir]`
 
 This command will run the main collector script. It will read a test definition file (see `settings.json` below), run the tests described in that file, and append data to a file called sasping_data.csv in the specified output directory (second command argument)
 
@@ -74,7 +76,9 @@ An Application, in this context, is a logical grouping of tests. An application'
 
 The Aggregator script can be run as follows
 
-`python aggregate.py [master csv file] [number of max data points]`
+`python aggregate.py -i [master csv file] -m [number of max data points]`
+or
+`python aggregate.py --input=[master csv file] --maximum=[number of max data points]`
 
 Aggregator will shrink the data if necessary and break it down to smaller files suitable for rendering on slower browsers by the Dashboard application. The second argument is the number of maximum data points to be rendered by the graph which the user sees. Aggregator will combine multiple collector runs into one, and reduce the number of data points by a number of two until it has the highest number of possible data points that is fewer than the second argument.
 
@@ -97,12 +101,13 @@ Add cron jobs to run collector and aggregator scripts. Both scripts should creat
 ### Generating Test Data
 
 Open another terminal session in sasping path
-* `python test_generator.py 1477324439 3600 60000 10 5 report/build` - generate some dummy data
-* `python aggregate.py report/build/sasping_data.csv 100` - run aggregator to shring the generated data
+* `python test_generator.py -s 1477324439 -i 3600 -m 60000 -t 10 -a 5 -o report/build` - generate some dummy data
+* `python aggregate.py -i report/build/sasping_data.csv -m 100` - run aggregator to shring the generated data
 * open http://localhost:8000/build/
 
 
 ### Create dummy test data
-`python test_generator.py [from unix timestamp] [interval in seconds] [max runs] [tests per run] [number of apps] [output]`
+`python test_generator.py -s [from unix timestamp] -i [interval in seconds] -m [max runs] -t [tests per run] -a [number of apps] -o [output]` or
+`python test_generator.py --start=[from unix timestamp] --interval=[interval in seconds] --maximum=[max runs] --tests=[tests per run] --apps=[number of apps] --output=[output]`
 
 e.g. `python test_generator.py 1389970377 3600 6000 10 5 report/build` - will create 60000 rows test file. First run will be on Fri, 17 Jan 2014, in one hour intervals.  
