@@ -293,10 +293,5 @@ class TestSas(unittest.TestCase):
         self.assertEqual(result[0]['status'], None)
         self.assertEqual(result[0]['message'], 'Failed to login.')
 
-class TestAggregator(unittest.TestCase):
-    def testShrink(self):
-        pass
-
-
 if __name__ == '__main__':
     unittest.main()
