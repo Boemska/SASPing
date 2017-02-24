@@ -8,7 +8,6 @@ import sas
 import sas.functions
 from sas.config.settings import Settings
 from sas.config.test import Test
-from sas.aggregator import Aggregator
 
 class TestSas(unittest.TestCase):
     def testInit(self):

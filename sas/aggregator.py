@@ -79,8 +79,13 @@ class Aggregator:
             del row['failed pattern']
             del row['message']
 
-            row['timestamp'] = int(row['timestamp'])
-            row['program exec timestamp'] = int(row['program exec timestamp'])
+            try:
+                row['timestamp'] = int(row['timestamp'])
+                row['program exec timestamp'] = int(row['program exec timestamp'])
+            except:
+                print("Ignoring row:\n'{0}'".format(row))
+                print("Reason: corrupted integer values")
+                continue
 
             if row['id'] == 'sasping login request':
                 if len(testsInRun) > 0: # check only for the first exec
@@ -133,7 +138,7 @@ class Aggregator:
     def getShrinkedAllTimeData(self):
         if self._shouldRead:
             self.readWholeFile()
-        aggreagatedData = Aggregator._shrink(self._data[0], self._max)
+        aggreagatedData = Aggregator.shrink(self._data[0], self._max)
         if len(aggreagatedData) >= 2:
             # use average time
             self._descData['all_time_interval'] = (aggreagatedData[-1][0]['program exec timestamp'] - aggreagatedData[0][0]['program exec timestamp']) / len(aggreagatedData)
@@ -146,7 +151,7 @@ class Aggregator:
     def getShrinkedMonthData(self):
         if self._shouldRead:
             self.readFilePart(self._descData['month_file_pos'])
-        aggreagatedData = self._shrink(self._data[1], self._max)
+        aggreagatedData = self.shrink(self._data[1], self._max)
         if len(aggreagatedData) >= 2:
             # use average time
             self._descData['month_time_interval'] = (aggreagatedData[-1][0]['program exec timestamp'] - aggreagatedData[0][0]['program exec timestamp']) / len(aggreagatedData)
@@ -159,7 +164,7 @@ class Aggregator:
     def getShrinkedWeekData(self):
         if self._shouldRead:
             self.readFilePart(self._descData['week_file_pos'])
-        aggreagatedData = self._shrink(self._data[2], self._max)
+        aggreagatedData = self.shrink(self._data[2], self._max)
         if len(aggreagatedData) >= 2:
             self._descData['week_time_interval'] = (aggreagatedData[-1][0]['program exec timestamp'] - aggreagatedData[0][0]['program exec timestamp']) / len(aggreagatedData)
         else:
@@ -176,7 +181,7 @@ class Aggregator:
         return self._data[3]
 
     @staticmethod
-    def _shrink(col, max):
+    def shrink(col, max):
         if len(col) < max:
             return col
         newCol = []
@@ -194,30 +199,37 @@ class Aggregator:
         for i in range(newColSize):
             run = []
             for k in range(maxTestsInRun):
-                row = None
-                status = 1
-                programExecTimestamps = []
-                execTimestamps = []
-                execDurations = []
-                statuses = []
-                for j in range(divider):
-                    # we can use this value from any row in the same collector run
-                    programExecTimestamps.append(col[i*divider+j][0]['program exec timestamp'])
-                    # check if k index is not out of bounds
-                    # some executions have more tests than others
-                    if len(col[i*divider+j]) > k:
-                        execTimestamps.append(col[i*divider+j][k]['timestamp'])
-                        execDurations.append(float(col[i*divider+j][k]['execution duration (s)']))
-                        statuses.append(col[i*divider+j][k]['status'])
-                        if row == None:
-                            # use any of defined rows for other properties like id, had to login, etc.
-                            row = copy.copy(col[i*divider+j][k])
-                if row != None:
-                    row['status'] = '1' if statuses.count('1') >= len(statuses)/2 else None
-                    row['program exec timestamp'] = Aggregator.avg(programExecTimestamps)
-                    row['timestamp'] = Aggregator.avg(execTimestamps)
-                    row['execution duration (s)'] = round(Aggregator.avg(execDurations), 3)
-                    run.append(row)
+                try:
+                    row = None
+                    status = 1
+                    programExecTimestamps = []
+                    execTimestamps = []
+                    execDurations = []
+                    statuses = []
+                    for j in range(divider):
+                        # we can use this value from any row in the same collector run
+                        programExecTimestamps.append(col[i*divider+j][0]['program exec timestamp'])
+                        # check if k index is not out of bounds
+                        # some executions have more tests than others
+                        if len(col[i*divider+j]) > k:
+                            execTimestamps.append(col[i*divider+j][k]['timestamp'])
+                            execDurations.append(float(col[i*divider+j][k]['execution duration (s)']))
+                            statuses.append(col[i*divider+j][k]['status'])
+                            if row == None:
+                                # use any of defined rows for other properties like id, had to login, etc.
+                                row = copy.copy(col[i*divider+j][k])
+                    if row != None:
+                        row['status'] = '1' if statuses.count('1') >= len(statuses)/2 else None
+                        row['program exec timestamp'] = Aggregator.avg(programExecTimestamps)
+                        row['timestamp'] = Aggregator.avg(execTimestamps)
+                        row['execution duration (s)'] = round(Aggregator.avg(execDurations), 3)
+                        run.append(row)
+                except Exception as e:
+                    # ignore row if data is corrupted
+                    print("Ignoring row in shrink\n'{0}'".format(row))
+                    print("Ignoring row:\n'{0}'".format(row))
+                    print("Reason: exception thrown in shrink with error: {0}".format(str(e)))
+                    continue
             newCol.append(run)
         return newCol
 
