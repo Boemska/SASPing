@@ -29,23 +29,22 @@ def run(config, debug):
         try:
             logFile = open(debug, "a")
             _logger = logFile.write
-        except:
-            print('\nCannot open log file. Debug flag ignored.')
+        except Exception as e:
+            print('\nCannot open log file. Debug flag ignored. Error: ' + str(e))
 
     try:
         startTime = time.time()
         loginStatus = login()
         if not(loginStatus):
-            loginResponse = Response('sasping login request', 'fail', 'Failed to login.')
+            loginResponse = Response('sasping login request', 'fail', message='Failed to login.')
         else:
             loginResponse = Response('sasping login request', 'success')
     except requests.exceptions.Timeout as err:
         loginResponse = Response('sasping login request', 'fail', message='Request timeout')
-    finally:
-        loginResponse.setTime(startTime, time.time() - startTime)
-        loginResponse.setProgramExecTime(programExecTime)
-        if loginResponse.status == 'fail':
-            return [dict(loginResponse)]
+    loginResponse.setTime(startTime, time.time() - startTime)
+    loginResponse.setProgramExecTime(programExecTime)
+    if loginResponse.status == 'fail':
+        return [dict(loginResponse)]
 
     # get request to do sas security check
     # this request is not logged to csv file
@@ -53,32 +52,28 @@ def run(config, debug):
         _session.get(_settings.get('hostUrl') + Test(_settings.get('applications')[0]['tests'][0]).get('execPath'))
     except requests.exceptions.RequestException:
         raise RuntimeError('SAS security check request failed')
-
-    outData.append(dict(loginResponse.setProgramExecTime(programExecTime)))
-    applications = _settings.get('applications')
-    for app in applications:
-        for test in [Test(testConfig) for testConfig in app['tests']]:
-            try:
-                startTime = time.time()
-                response = call(test)
-            except requests.exceptions.Timeout:
-                response = Response(test.get('id'), 'fail', message='Request timeout')
-            except requests.exceptions.ConnectionError:
-                response = Response(test.get('id'), 'fail', message='Name or service not known')
-            except requests.exceptions.RequestException as e:
-                response = Response(test.get('id'), 'fail', message=str(e))
-            except Exception as e:
-                response = Response(test.get('id'), 'fail', message=str(e))
-            finally:
+    finally:
+        outData.append(dict(loginResponse.setProgramExecTime(programExecTime)))
+        applications = _settings.get('applications')
+        for app in applications:
+            for test in [Test(testConfig) for testConfig in app['tests']]:
+                try:
+                    startTime = time.time()
+                    response = call(test)
+                except requests.exceptions.Timeout:
+                    response = Response(test.get('id'), 'fail', message='Request timeout')
+                except requests.exceptions.ConnectionError:
+                    response = Response(test.get('id'), 'fail', message='Name or service not known')
+                except requests.exceptions.RequestException as e:
+                    response = Response(test.get('id'), 'fail', message=str(e))
                 response.setTime(startTime, time.time() - startTime)
                 response.setAppName(app['name'])
                 outData.append(dict(response.setProgramExecTime(programExecTime)))
 
-    try:
-        logFile.close()
-    finally:
-        return outData
-
+                try:
+                    logFile.close()
+                finally:
+                    return outData
 
 def login():
     req = _session.get(_settings.getLoginUrl(), timeout=30)
@@ -105,7 +100,7 @@ def call(test, afterLogin=False):
     debugStr += req.request.method + '\n'
     debugStr += req.url + '\n\n'
     debugStr += 'Request headers: ' + str(req.request.headers) + '\n\n'
-    debugStr += 'Params: ' + req.request.body + '\n\n'
+    debugStr += 'Params: ' + req.request.body if req.request.body != None else '' + '\n\n'
     debugStr += '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n'
     debugStr += 'Response status code: ' + str(req.status_code) + '\n\n'
     debugStr += 'Cookies: ' + str(_session.cookies.get_dict()) + '\n\n'
@@ -119,7 +114,7 @@ def call(test, afterLogin=False):
 
     if functions.needToLogin(req.text):
         hiddenParams = functions.getHiddenParams(req.text)
-        if _login(loginUrl, hiddenParams):
+        if _login(hiddenParams):
             return call(test, True)
         else:
             return Response(test.get('id'), 'fail', message='Failed login')

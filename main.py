@@ -51,11 +51,14 @@ def main():
     try:
         testsData = sas.run(config, debug)
     # KeyError throw by Settings class if configuration is not ok
-    except (KeyError, ValueError, RuntimeError) as e:
+    except (KeyError, ValueError) as e:
         sys.stderr.write('\nThere is an error in settings.json.\n')
         sys.stderr.write('Please read the documentation and fix errors.\n')
         sys.stderr.write('Error message: {0}\n\n'.format(str(e)))
         sys.exit(1)
+    except RuntimeError as e:
+        # RuntimeError is describing wrong workflow - the script should continue working after that
+        sys.stderr.write('\nThere was an issue with message: {0}\n\n'.format(str(e)))
 
     try:
         keys = Response.getKeys()

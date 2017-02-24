@@ -1,7 +1,10 @@
 import unittest
 import re
 import json
+import mock
+import requests
 
+import sas
 import sas.functions
 from sas.config.settings import Settings
 from sas.config.test import Test
@@ -256,6 +259,39 @@ class TestSas(unittest.TestCase):
                 "cantContain": []
             }
         }"""))
+
+    @mock.patch('sas._session.post', side_effect=Exception('unknown error'))
+    def testRequests1(self, mockedReq):
+        config = json.load(open('settings.json'))
+        with self.assertRaises(Exception):
+            result = sas.run(config, False)
+            self.assertEqual(result[0]['message'], 'unknown error')
+            self.assertEqual(result[0]['status'], None)
+
+    @mock.patch('sas.login', side_effect=Exception('unknown error'))
+    def testRequests2(self, loginReqMock):
+        config = json.load(open('settings.json'))
+        with self.assertRaises(Exception):
+            result = sas.run(config, False)
+            self.assertEqual(result[0]['status'], None)
+            self.assertEqual(result[0]['message'], 'unknown error')
+            loginReqMock.assert_called_once()
+
+    @mock.patch('sas.login', return_value=False)
+    def testRequests3(self, loginReq):
+        config = json.load(open('settings.json'))
+        result = sas.run(config, False)
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0]['status'], None)
+        self.assertEqual(result[0]['message'], 'Failed to login.')
+
+    @mock.patch('sas._login', return_value=False)
+    def testRequests4(self, loginReq):
+        config = json.load(open('settings.json'))
+        result = sas.run(config, False)
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0]['status'], None)
+        self.assertEqual(result[0]['message'], 'Failed to login.')
 
 class TestAggregator(unittest.TestCase):
     def testShrink(self):
