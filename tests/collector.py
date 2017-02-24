@@ -292,6 +292,3 @@ class TestSas(unittest.TestCase):
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0]['status'], None)
         self.assertEqual(result[0]['message'], 'Failed to login.')
-
-if __name__ == '__main__':
-    unittest.main()
