@@ -19,16 +19,13 @@ def main():
         sys.stdout.write('\nRun `python main.py --help` or check the Readme file\n\n')
         sys.exit(2)
 
+    if len(opts) == 0:
+        printHelp()
+
     debug = None
     for opt, arg in opts:
         if opt in ('-h', '--help'):
-            sys.stdout.write('\nCollect data about SAS services.\n')
-            sys.stdout.write('\nMandatory arguments:\n')
-            sys.stdout.write('\t-s, --settings        Settings JSON file path.\n')
-            sys.stdout.write('\t-o, --output          Output directory (sasping_data.csv file will be saved there)\n\n')
-            sys.stdout.write('\nOptional arguments:\n')
-            sys.stdout.write('\t-d, --debug           Debug flag or file path.\n')
-            sys.exit(0)
+            printHelp()
         elif opt in ('-s', '--settings'):
             settingsPath = arg
         elif opt in ('-o', '--output'):
@@ -80,6 +77,15 @@ def main():
     except IOError as e:
         sys.stderr.write('\n{0}\n\n'.format(str(e)))
         sys.exit(1)
+
+def printHelp():
+    sys.stdout.write('\nCollect data about SAS services.\n')
+    sys.stdout.write('\nMandatory arguments:\n')
+    sys.stdout.write('\t-s, --settings        Settings JSON file path.\n')
+    sys.stdout.write('\t-o, --output          Output directory (sasping_data.csv file will be saved there)\n\n')
+    sys.stdout.write('\nOptional arguments:\n')
+    sys.stdout.write('\t-d, --debug           Debug flag or file path.\n')
+    sys.exit(0)
 
 if __name__ == '__main__':
     sys.exit(main())

@@ -15,17 +15,23 @@ except getopt.GetoptError:
     sys.stdout.write('\nRun `python test_generator.py --help` or check the Readme file\n\n')
     sys.exit(2)
 
+def printHelp():
+    sys.stdout.write('\nThe script will generate tests every X seconds based on the interval argument starting from S timestamp.\n')
+    sys.stdout.write('\nMandatory arguments:\n')
+    sys.stdout.write('\t-s, --start        Start timestamp. Generated data will start from this timestamp.\n')
+    sys.stdout.write('\t-i, --interval     Interval in seconds between consecutive tests.\n')
+    sys.stdout.write('\t-m, --maximum      Maximum number of tests. The script will stop if the number of tests exceeds this argument.\n')
+    sys.stdout.write('\t-t, --tests        Number of tests in one round (an execution of the collector script).\n')
+    sys.stdout.write('\t-a, --apps         Number of dummy applications.\n')
+    sys.stdout.write('\t-o, --output       Output directory (sasping_data.csv file will be saved there).\n')
+    sys.exit(0)
+
+if len(opts) == 0:
+    printHelp()
+
 for opt, arg in opts:
     if opt in ('-h', '--help'):
-        sys.stdout.write('\nThe script will generate tests every X seconds based on the interval argument starting from S timestamp.\n')
-        sys.stdout.write('\nMandatory arguments:\n')
-        sys.stdout.write('\t-s, --start        Start timestamp. Generated data will start from this timestamp.\n')
-        sys.stdout.write('\t-i, --interval     Interval in seconds between consecutive tests.\n')
-        sys.stdout.write('\t-m, --maximum      Maximum number of tests. The script will stop if the number of tests exceeds this argument.\n')
-        sys.stdout.write('\t-t, --tests        Number of tests in one round (an execution of the collector script).\n')
-        sys.stdout.write('\t-a, --apps         Number of dummy applications.\n')
-        sys.stdout.write('\t-o, --output       Output directory (sasping_data.csv file will be saved there).\n')
-        sys.exit(0)
+        printHelp()
     elif opt in ('-s', '--start'):
         fromTimestamp = int(arg)
     elif opt in ('-i', '--interval'):

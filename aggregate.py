@@ -17,14 +17,20 @@ except getopt.GetoptError:
 
 maxDatapoints = 100
 
+def printHelp():
+    sys.stdout.write('\nThe script will read master CSV file and create 4 aggregated file for each data period.\n')
+    sys.stdout.write('\nMandatory arguments:\n')
+    sys.stdout.write('\t-i, --input        Input master file to be aggregated.\n')
+    sys.stdout.write('\nOptional arguments:\n')
+    sys.stdout.write('\t-m, --maximum      Maximum number of datapoints per period displayed in chart.\n')
+    sys.exit(0)
+
+if len(opts) == 0:
+    printHelp()
+
 for opt, arg in opts:
     if opt in ('-h', '--help'):
-        sys.stdout.write('\nThe script will read master CSV file and create 4 aggregated file for each data period.\n')
-        sys.stdout.write('\nMandatory arguments:\n')
-        sys.stdout.write('\t-i, --input        Input master file to be aggregated.\n')
-        sys.stdout.write('\nOptional arguments:\n')
-        sys.stdout.write('\t-m, --maximum      Maximum number of datapoints per period displayed in chart.\n')
-        sys.exit(0)
+        printHelp()
     elif opt in ('-i', '--input'):
         inFilePath = arg
     elif opt in ('-m', '--maximum'):
