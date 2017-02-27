@@ -14,16 +14,16 @@ def main():
     except getopt.GetoptError:
         sys.stdout.write('\npython aggregate.py -i [input file path] -m [maximum number of datapoints]\n')
         sys.stdout.write('\nRun `python aggregate.py --help` or check the Readme file\n\n')
-        sys.exit(2)
+        return 2
 
     maxDatapoints = 100
 
     if len(opts) == 0:
-        printHelp()
+        return printHelp()
 
     for opt, arg in opts:
         if opt in ('-h', '--help'):
-            printHelp()
+            return printHelp()
         elif opt in ('-i', '--input'):
             inFilePath = arg
         elif opt in ('-m', '--maximum'):
@@ -90,7 +90,7 @@ def printHelp():
     sys.stdout.write('\t-i, --input        Input master file to be aggregated.\n')
     sys.stdout.write('\nOptional arguments:\n')
     sys.stdout.write('\t-m, --maximum      Maximum number of datapoints per period displayed in chart.\n')
-    sys.exit(0)
+    return 0
 
 if __name__ == '__main__':
     sys.exit(main())

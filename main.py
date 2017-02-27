@@ -17,15 +17,15 @@ def main():
     except getopt.GetoptError:
         sys.stdout.write('\npython main.py -s [settings file path] -o [output dir]\n')
         sys.stdout.write('\nRun `python main.py --help` or check the Readme file\n\n')
-        sys.exit(2)
+        return 2
 
     if len(opts) == 0:
-        printHelp()
+        return printHelp()
 
     debug = None
     for opt, arg in opts:
         if opt in ('-h', '--help'):
-            printHelp()
+            return printHelp()
         elif opt in ('-s', '--settings'):
             settingsPath = arg
         elif opt in ('-o', '--output'):
@@ -36,14 +36,14 @@ def main():
     if len(opts) < 2:
         sys.stdout.write('\npython main.py -s [settings file path] -o [output dir]\n')
         sys.stdout.write('\nRun `python main.py --help` or check the Readme file\n\n')
-        sys.exit(2)
+        return 2
 
     try:
         config = json.load(open(settingsPath))
     except ValueError as e:
         sys.stderr.write('\nThere is an error in settings.json.\n')
         sys.stderr.write('\nInvalid json with message: {0}\n\n'.format(str(e)))
-        sys.exit(1)
+        return 1
 
     try:
         testsData = sas.run(config, debug)
@@ -52,7 +52,7 @@ def main():
         sys.stderr.write('\nThere is an error in settings.json.\n')
         sys.stderr.write('Please read the documentation and fix errors.\n')
         sys.stderr.write('Error message: {0}\n\n'.format(str(e)))
-        sys.exit(1)
+        return 1
     except RuntimeError as e:
         # RuntimeError is describing wrong workflow - the script should continue working after that
         sys.stderr.write('\nThere was an issue with message: {0}\n\n'.format(str(e)))
@@ -61,7 +61,7 @@ def main():
         keys = Response.getKeys()
         if not(os.path.isdir(outputPath)):
             sys.stderr.write('\nWrong output path. Please check if the dir exists.\n\n')
-            sys.exit(1)
+            return 1
         csvFilePath = os.path.join(outputPath, 'sasping_data.csv')
         csvFileExists = os.path.isfile(csvFilePath)
         with open(csvFilePath, "a") as outFile:
@@ -76,7 +76,7 @@ def main():
                 print('\nCreated file {0}\n'.format(csvFilePath))
     except IOError as e:
         sys.stderr.write('\n{0}\n\n'.format(str(e)))
-        sys.exit(1)
+        return 1
 
 def printHelp():
     sys.stdout.write('\nCollect data about SAS services.\n')
@@ -85,7 +85,7 @@ def printHelp():
     sys.stdout.write('\t-o, --output          Output directory (sasping_data.csv file will be saved there)\n\n')
     sys.stdout.write('\nOptional arguments:\n')
     sys.stdout.write('\t-d, --debug           Debug flag or file path.\n')
-    sys.exit(0)
+    return 0
 
 if __name__ == '__main__':
     sys.exit(main())
