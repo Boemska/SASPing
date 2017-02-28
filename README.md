@@ -77,7 +77,9 @@ An Application, in this context, is a logical grouping of tests. An application'
 The Aggregator script can be run as follows
 
 `python aggregate.py -i [master csv file] -m [number of max data points]`
+
 or
+
 `python aggregate.py --input=[master csv file] --maximum=[number of max data points]`
 
 Aggregator will shrink the data if necessary and break it down to smaller files suitable for rendering on slower browsers by the Dashboard application. The second argument is the number of maximum data points to be rendered by the graph which the user sees. Aggregator will combine multiple collector runs into one, and reduce the number of data points by a number of two until it has the highest number of possible data points that is fewer than the second argument.
@@ -107,7 +109,10 @@ Open another terminal session in sasping path
 
 
 ### Create dummy test data
-`python test_generator.py -s [from unix timestamp] -i [interval in seconds] -m [max runs] -t [tests per run] -a [number of apps] -o [output]` or
+`python test_generator.py -s [from unix timestamp] -i [interval in seconds] -m [max runs] -t [tests per run] -a [number of apps] -o [output]`
+
+or
+
 `python test_generator.py --start=[from unix timestamp] --interval=[interval in seconds] --maximum=[max runs] --tests=[tests per run] --apps=[number of apps] --output=[output]`
 
 e.g. `python test_generator.py 1389970377 3600 6000 10 5 report/build` - will create 60000 rows test file. First run will be on Fri, 17 Jan 2014, in one hour intervals.  
