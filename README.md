@@ -115,4 +115,4 @@ or
 
 `python test_generator.py --start=[from unix timestamp] --interval=[interval in seconds] --maximum=[max runs] --tests=[tests per run] --apps=[number of apps] --output=[output]`
 
-e.g. `python test_generator.py 1389970377 3600 6000 10 5 report/build` - will create 60000 rows test file. First run will be on Fri, 17 Jan 2014, in one hour intervals.  
+e.g. `python test_generator.py -s 1389970377 -i 3600 -m 6000 -t 10 -a 5 -o report/build` - will create 60000 rows test file. First run will be on Fri, 17 Jan 2014, in one hour intervals.  
