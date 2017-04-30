@@ -41,8 +41,8 @@ Example settings.json:
 "hostUrl": "https://apps.boemskats.com/",      
   "loginPath": "/SASLogon/login",
   "loginParams": {
-    "username": "jimdemo",
-    "password": "Bigballs1"
+    "username": "sasdemo",
+    "password": "Orion123"
   },
   "applications": [{
     "name": "Stored Process Web Application",
