@@ -4,6 +4,8 @@
 
 SASPING is a testing and reporting framework that simulates user activity in order to validate the status and record the responsiveness of your SAS(tm) installation. It is inspired by Chris Blake's 2016 SAS Global Forum presentation titled [What about When It’s Down? An Application for the Enhancement of the SAS® Middle-Tier User Experience](https://sasglobalforum2016.lanyonevents.com/connect/sessionDetail.ww?SESSION_ID=11421).
 
+![image](https://user-images.githubusercontent.com/11962123/36974598-1e0de9e4-206f-11e8-96c7-79aa55ddaaa6.png)
+
 ## How does it work?
 
 This project is made up of two parts:
