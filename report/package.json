@@ -44,7 +44,7 @@
     "compute-iqr": "^1.1.0",
     "d3": "^3.5.17",
     "nvd3": "^1.8.5",
-    "papaparse": "^4.1.2"
+    "papaparse": "^5.3.0"
   },
   "devDependencies": {
     "copyfiles": "^1.0.0",
